@@ -22,8 +22,7 @@ class CarteiraController extends Controller
     public function index()
     {
         $carteiras = $this->carteiraService->listarCarteiras(Auth::id());
-        $carteirasArray = array_map(fn($carteira) => $carteira->toArray(), $carteiras);
-        return response()->json($carteirasArray);
+        return response()->json($carteiras);
     }
 
 
@@ -51,8 +50,7 @@ class CarteiraController extends Controller
     public function show(string $id)
     {
         $carteira = $this->carteiraService->buscarCarteira(Auth::id(), (int) $id);
-        $carteirasArray =  $carteira->toArray();
-        return response()->json($carteirasArray);
+        return response()->json($carteira);
     }
 
     /**

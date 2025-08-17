@@ -2,7 +2,7 @@
 
 namespace App\Domain\Entities;
 
-class Carteira
+class Carteira implements \JsonSerializable
 {
   private ?int $id;
   private ?int $user_id;
@@ -22,11 +22,11 @@ class Carteira
     $this->descricao = $descricao;
   }
 
-  public function toArray(): array
+  public function jsonSerialize(): array
   {
     return [
       'id' => $this->id,
-      'usuario_id' => $this->user_id,
+      'user_id' => $this->user_id,
       'nome' => $this->nome,
       'descricao' => $this->descricao,
     ];
