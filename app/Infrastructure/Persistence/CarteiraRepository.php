@@ -36,9 +36,11 @@ class CarteiraRepository implements CarteiraRepositoryInterface
 
   public function delete(int $id): void
   {
-    CarteiraModel::destroy($id);
+    $model = CarteiraModel::find($id);
+    if ($model) {
+      $model->delete();
+    }
   }
-
   public function findByUserId(int $userId): array
   {
     return CarteiraModel::where('user_id', $userId)
@@ -53,7 +55,14 @@ class CarteiraRepository implements CarteiraRepositoryInterface
       ->where('user_id', $userId)
       ->first();
 
-    return $model ? $this->mapToEntity($model) : null;
+    if (!$model) return null;
+
+    return new Carteira(
+      $model->id,
+      $model->usuario_id,
+      $model->nome,
+      $model->descricao
+    );
   }
 
   private function mapToEntity(CarteiraModel $model): Carteira
@@ -64,5 +73,13 @@ class CarteiraRepository implements CarteiraRepositoryInterface
       $model->nome,
       $model->descricao
     );
+  }
+
+  public function restore(int $id): void
+  {
+    $model = CarteiraModel::withTrashed()->find($id);
+    if ($model && $model->trashed()) {
+      $model->restore();
+    }
   }
 }

@@ -12,4 +12,5 @@ interface CarteiraRepositoryInterface
   public function delete(int $id): void;
   public function findByUserId(int $userId): array;
   public function findByIdAndUserId(int $id, int $userId): ?Carteira;
+  public function restore(int $id): void;
 }

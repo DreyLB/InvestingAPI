@@ -76,7 +76,19 @@ class CarteiraController extends Controller
      */
     public function destroy(string $id)
     {
-        $this->carteiraService->removerCarteira(Auth::id(), (int) $id);
+        $this->carteiraService->removerCarteira(Auth::id(), (int)$id);
         return response()->json(['message' => 'Carteira removida com sucesso!']);
+    }
+
+    public function restore(string $id)
+    {
+        $carteira = $this->carteiraService->restaurarCarteira(Auth::id(), (int)$id);
+        if (!$carteira) {
+            return response()->json(['message' => 'Carteira não encontrada'], 404);
+        }
+        return response()->json([
+            'message' => 'Carteira restaurada com sucesso!',
+            'data' => $carteira
+        ]);
     }
 }

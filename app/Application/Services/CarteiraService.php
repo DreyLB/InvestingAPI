@@ -79,7 +79,20 @@ class CarteiraService
    */
   public function removerCarteira(int $userId, int $carteiraId): void
   {
-    $this->buscarCarteira($userId, $carteiraId); // garante que é do usuário
-    $this->carteiraRepository->delete($carteiraId);
+    $carteira = $this->carteiraRepository->findByIdAndUserId($carteiraId, $userId);
+    if ($carteira) {
+      $this->carteiraRepository->delete($carteiraId); // soft delete
+    }
+  }
+
+  public function restaurarCarteira(int $userId, int $id): ?Carteira
+  {
+    $carteira = $this->carteiraRepository->findByIdAndUserId($id, $userId);
+    if (!$carteira) {
+      // buscar mesmo que esteja deletada
+      $this->carteiraRepository->restore($id);
+      return $this->carteiraRepository->findByIdAndUserId($id, $userId);
+    }
+    return $carteira;
   }
 }
