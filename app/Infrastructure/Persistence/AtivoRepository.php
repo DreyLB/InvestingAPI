@@ -29,11 +29,6 @@ class AtivoRepository implements AtivoRepositoryInterface
     $model->price          = $ativo->getPreco();
     $model->average_price  = $ativo->getPrecoMedio();
     $model->save();
-
-    // opcionalmente, atualize o ID dentro da entidade (se ela tiver setId)
-    if (method_exists($ativo, 'setId') && ! $ativo->getId()) {
-      $ativo->setId((int) $model->id);
-    }
   }
 
   public function listarPorCarteira(int $carteiraId): array

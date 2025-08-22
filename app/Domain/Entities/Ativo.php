@@ -7,12 +7,12 @@ use DateTime;
 
 class Ativo implements JsonSerializable
 {
-  private int $id;
+  private ?int $id;
   private int $tipo_id;
   private int $carteira_id;
   private ?int $categoria_id;
   private string $nome;
-  private int $quantidade;
+  private float $quantidade;
   private float $preco;
   private float $preco_medio;
   private DateTime $created_at;
@@ -24,7 +24,7 @@ class Ativo implements JsonSerializable
     ?int $categoria_id,
     string $nome,
     int $tipo_id,
-    int $quantidade,
+    float $quantidade,
     float $preco,
     float $preco_medio,
     DateTime $created_at,
@@ -59,7 +59,7 @@ class Ativo implements JsonSerializable
   {
     return $this->nome;
   }
-  public function getQuantidade(): int
+  public function getQuantidade(): float
   {
     return $this->quantidade;
   }

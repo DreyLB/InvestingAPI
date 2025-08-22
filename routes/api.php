@@ -11,19 +11,19 @@ Route::post('/login', [UserController::class, 'login']);
 
 //ROTAS AUTENTICADAS
 
-//USER
-Route::post('/logout', [UserController::class, 'logout']);
-
-//WALLET
-Route::apiResource('/carteiras', CarteiraController::class)->middleware('auth:api');
-
-//ASSETS
-
+// ROTAS AUTENTICADAS
 Route::middleware('auth:api')->group(function () {
-  // Assets (sempre dentro de uma carteira)
-  Route::get('/carteiras/{wallet}/ativos', [AtivoController::class, 'index']);
-  Route::post('/carteiras/{wallet}/ativos', [AtivoController::class, 'store']);
-  Route::get('/carteiras/{wallet}/ativos/{ativo}', [AtivoController::class, 'show']);
-  Route::put('/carteiras/{wallet}/ativos/{ativo}', [AtivoController::class, 'update']);
-  Route::delete('/carteiras/{wallet}/ativos/{ativo}', [AtivoController::class, 'destroy']);
+
+  // USER
+  Route::post('/logout', [UserController::class, 'logout']);
+
+  // WALLET
+  Route::apiResource('/carteiras', CarteiraController::class);
+
+  // ASSETS (ativos dentro de uma carteira)
+  Route::apiResource('carteiras.ativos', AtivoController::class)
+    ->parameters([
+      'ativos' => 'ativoId',      // renomeia o parâmetro do ativo
+      'carteiras' => 'carteiraId' // renomeia o parâmetro da carteira
+    ]);
 });

@@ -52,9 +52,10 @@ class AtivoService
 
         $agora = new DateTime();
 
+
         // novo Ativo: id=0 (falso) para o repo entender como INSERT
         $ativo = new Ativo(
-            null,
+            0,
             $carteiraId,
             null,
             $dados['name'],
@@ -65,6 +66,9 @@ class AtivoService
             $agora,
             $agora
         );
+
+        /* dd('Rota store chamada', $carteiraId,  $ativo); */
+
 
         $this->ativoRepository->save($ativo);
 
