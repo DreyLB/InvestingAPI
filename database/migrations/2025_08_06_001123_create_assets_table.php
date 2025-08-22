@@ -6,37 +6,42 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('assets', function (Blueprint $table) {
-            $table->id(); // id PK autoincrement
+            $table->id();
 
-            // FK para wallets
             $table->foreignId('wallet_id')
                 ->constrained('wallets')
                 ->onDelete('cascade');
 
-            // FK para categories (opcional, pode deixar null)
             $table->foreignId('category_id')
                 ->nullable()
                 ->constrained('categories')
-                ->onDelete('set null');
+                ->onDelete('cascade');
 
-            $table->string('nome'); // Nome do ativo (ex.: PETR4, IVVB11)
-            $table->string('tipo')->nullable(); // Tipo (caso não use category_id)
-            $table->integer('quantidade'); // Quantidade de ativos
-            $table->decimal('preco', 15, 2); // Último preço
-            $table->decimal('preco_medio', 15, 2); // Preço médio
-            $table->timestamps(); // created_at e updated_at
+            $table->foreignId('asset_type_id')
+                ->constrained('asset_types')
+                ->onDelete('cascade');
+
+            $table->string('name');
+            $table->decimal('quantity', 20, 8);
+            $table->decimal('price', 20, 8);
+            $table->decimal('average_price', 20, 8);
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            // índices para performance
+            $table->index('wallet_id');
+            $table->index('category_id');
+            $table->index(['wallet_id', 'category_id']);
+
+            // constraint de negócio: não pode repetir nome de ativo na mesma carteira
+            $table->unique(['wallet_id', 'name']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('assets');

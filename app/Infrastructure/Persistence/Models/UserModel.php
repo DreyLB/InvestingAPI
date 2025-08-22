@@ -4,8 +4,10 @@ namespace App\Infrastructure\Persistence\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Infrastructure\Persistence\Models\CarteiraModel;
 
 
 class UserModel extends Authenticatable implements JWTSubject
@@ -42,5 +44,10 @@ class UserModel extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function carteiras(): HasMany
+    {
+        return $this->hasMany(CarteiraModel::class, 'user_id');
     }
 }
