@@ -59,7 +59,7 @@ class CarteiraRepository implements CarteiraRepositoryInterface
 
     return new Carteira(
       $model->id,
-      $model->usuario_id,
+      $userId,
       $model->nome,
       $model->descricao
     );

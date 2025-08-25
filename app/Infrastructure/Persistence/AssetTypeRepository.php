@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Infrastructure\Persistence\Repositories;
+namespace App\Infrastructure\Persistence;
 
 use App\Domain\Entities\AssetType;
 use App\Domain\Repositories\AssetTypeRepositoryInterface;

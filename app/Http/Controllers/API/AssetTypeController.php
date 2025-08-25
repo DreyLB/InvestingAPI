@@ -4,8 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Application\Services\AssetTypeService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreAssetTypeRequest;
-use App\Http\Requests\UpdateAssetTypeRequest;
+use App\Http\Requests\AssetTypeRequest;
 use Illuminate\Http\JsonResponse;
 
 class AssetTypeController extends Controller
@@ -22,7 +21,7 @@ class AssetTypeController extends Controller
     return response()->json($this->service->listarTodos());
   }
 
-  public function store(StoreAssetTypeRequest $request): JsonResponse
+  public function store(AssetTypeRequest $request): JsonResponse
   {
     $assetType = $this->service->criar(
       $request->validated()['nome'],
@@ -43,7 +42,7 @@ class AssetTypeController extends Controller
     return response()->json($assetType);
   }
 
-  public function update(UpdateAssetTypeRequest $request, int $id): JsonResponse
+  public function update(AssetTypeRequest $request, int $id): JsonResponse
   {
     $assetType = $this->service->atualizar(
       $id,

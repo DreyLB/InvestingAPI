@@ -7,6 +7,8 @@ use App\Domain\Repositories\UserRepositoryInterface;
 use App\Infrastructure\Persistence\UserRepository;
 use App\Domain\Repositories\CarteiraRepositoryInterface;
 use App\Infrastructure\Persistence\CarteiraRepository;
+use App\Domain\Repositories\AssetTypeRepositoryInterface;
+use App\Infrastructure\Persistence\AssetTypeRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,5 +29,6 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(CarteiraRepositoryInterface::class, CarteiraRepository::class);
+        $this->app->bind(AssetTypeRepositoryInterface::class, AssetTypeRepository::class);
     }
 }

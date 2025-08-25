@@ -17,28 +17,35 @@ class AtivoController extends Controller
 
     public function index(int $carteiraId): JsonResponse
     {
-        $ativos = $this->service->listarAtivos($carteiraId);
-        return response()->json($ativos);
+        try {
+            $ativos = $this->service->listarAtivos($carteiraId);
+            return response()->json($ativos);
+        } catch (QueryException $e) {
+            throw $e; // outros erros relançam exceção
+        }
     }
 
     public function show(int $carteiraId, int $id): JsonResponse
     {
-        $ativo = $this->service->buscarAtivo($carteiraId, $id);
-        return response()->json($ativo);
+        try {
+            $ativo = $this->service->buscarAtivo($carteiraId, $id);
+            return response()->json($ativo);
+        } catch (QueryException $e) {
+            throw $e;
+        }
     }
 
     public function store(Request $request, int $carteiraId): JsonResponse
     {
-        $dados = $request->validate([
-            'category_id'    => 'nullable|exists:categories,id',
-            'asset_type_id'  => 'required|exists:asset_types,id',
-            'name'           => 'required|string|max:255',
-            'quantity'       => 'required|numeric|min:0',
-            'price'          => 'required|numeric|min:0',
-            'average_price'  => 'required|numeric|min:0',
-        ]);
-
         try {
+            $dados = $request->validate([
+                'category_id'    => 'nullable|exists:categories,id',
+                'asset_type_id'  => 'required|exists:asset_types,id',
+                'name'           => 'required|string|max:255',
+                'quantity'       => 'required|numeric|min:0',
+                'price'          => 'required|numeric|min:0',
+                'average_price'  => 'required|numeric|min:0',
+            ]);
             $ativo = $this->service->criarAtivo($carteiraId, $dados);
             return response()->json($ativo, 201);
         } catch (QueryException $e) {
@@ -51,25 +58,32 @@ class AtivoController extends Controller
         }
     }
 
-
     public function update(Request $request, int $carteiraId, int $id): JsonResponse
     {
-        $dados = $request->validate([
-            'category_id'    => 'nullable|exists:categories,id',
-            'asset_type_id'  => 'sometimes|exists:asset_types,id',
-            'name'           => 'sometimes|string|max:255',
-            'quantity'       => 'sometimes|numeric|min:0',
-            'price'          => 'sometimes|numeric|min:0',
-            'average_price'  => 'sometimes|numeric|min:0',
-        ]);
+        try {
+            $dados = $request->validate([
+                'category_id'    => 'nullable|exists:categories,id',
+                'asset_type_id'  => 'sometimes|exists:asset_types,id',
+                'name'           => 'sometimes|string|max:255',
+                'quantity'       => 'sometimes|numeric|min:0',
+                'price'          => 'sometimes|numeric|min:0',
+                'average_price'  => 'sometimes|numeric|min:0',
+            ]);
 
-        $ativo = $this->service->atualizarAtivo($carteiraId, $id, $dados);
-        return response()->json($ativo);
+            $ativo = $this->service->atualizarAtivo($carteiraId, $id, $dados);
+            return response()->json($ativo);
+        } catch (QueryException $e) {
+            throw $e; // outros erros relançam exceção
+        }
     }
 
     public function destroy(int $carteiraId, int $id): JsonResponse
     {
-        $this->service->removerAtivo($carteiraId, $id);
-        return response()->json(['message' => 'Ativo removido com sucesso.']);
+        try {
+            $this->service->removerAtivo($carteiraId, $id);
+            return response()->json(['message' => 'Ativo removido com sucesso.']);
+        } catch (QueryException $e) {
+            throw $e; // outros erros relançam exceção
+        }
     }
 }

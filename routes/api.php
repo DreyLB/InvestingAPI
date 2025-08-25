@@ -1,9 +1,11 @@
 <?php
 
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\CarteiraController;
 use App\Http\Controllers\API\AtivoController;
+use App\Http\Controllers\API\AssetTypeController;
 
 //ROTAS PUBLICAS
 Route::post('/register', [UserController::class, 'register']);
@@ -24,6 +26,12 @@ Route::middleware('auth:api')->group(function () {
   Route::apiResource('carteiras.ativos', AtivoController::class)
     ->parameters([
       'ativos' => 'ativoId',      // renomeia o parâmetro do ativo
+      'carteiras' => 'carteiraId' // renomeia o parâmetro da carteira
+    ]);
+
+  Route::apiResource('carteiras.tipoativo', AssetTypeController::class)
+    ->parameters([
+      'tipoativo' => 'tipoAtivoId',      // renomeia o parâmetro do ativo
       'carteiras' => 'carteiraId' // renomeia o parâmetro da carteira
     ]);
 });
