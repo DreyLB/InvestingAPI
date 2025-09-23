@@ -23,13 +23,13 @@ Route::middleware('auth:api')->group(function () {
   Route::apiResource('/carteiras', CarteiraController::class);
 
   // ASSETS (ativos dentro de uma carteira)
-  Route::apiResource('carteiras.ativos', AtivoController::class)
+  Route::apiResource('carteira.ativos', AtivoController::class)
     ->parameters([
       'ativos' => 'ativoId',      // renomeia o parâmetro do ativo
       'carteiras' => 'carteiraId' // renomeia o parâmetro da carteira
     ]);
 
-  Route::apiResource('carteiras.tipoativo', AssetTypeController::class)
+  Route::apiResource('carteiras.tipo.ativo', AssetTypeController::class)
     ->parameters([
       'tipoativo' => 'tipoAtivoId',      // renomeia o parâmetro do ativo
       'carteiras' => 'carteiraId' // renomeia o parâmetro da carteira
