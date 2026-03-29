@@ -13,7 +13,6 @@ use App\Domain\Repositories\CategoriaRepositoryInterface;
 use App\Infrastructure\Persistence\CategoriaRepository;
 use App\Domain\Repositories\TransacaoRepositoryInterface;
 use App\Infrastructure\Persistence\TransacaoRepository;
-
 use App\Domain\Repositories\DividendoRepositoryInterface;
 use App\Infrastructure\Persistence\DividendoRepository;
 
@@ -41,5 +40,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CategoriaRepositoryInterface::class, CategoriaRepository::class);
         $this->app->bind(TransacaoRepositoryInterface::class, TransacaoRepository::class);
         $this->app->bind(DividendoRepositoryInterface::class, DividendoRepository::class);
+        $this->app->bind(
+            \App\Domain\Repositories\RendimentoRepositoryInterface::class,
+            \App\Infrastructure\Persistence\RendimentoRepository::class,
+        );
     }
 }

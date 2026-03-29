@@ -9,6 +9,7 @@ use App\Http\Controllers\API\AssetTypeController;
 use App\Http\Controllers\API\CategoriaController;
 use App\Http\Controllers\API\TransacaoController;
 use App\Http\Controllers\API\DividendoController;
+use App\Http\Controllers\API\RendimentoController;
 
 //ROTAS PUBLICAS
 Route::post('/register', [UserController::class, 'register']);
@@ -58,4 +59,10 @@ Route::middleware('auth:api')->group(function () {
   Route::get('/carteiras/{carteiraId}/ativos/{ativoId}/dividendos', [DividendoController::class, 'index']);
   Route::post('/carteiras/{carteiraId}/ativos/{ativoId}/dividendos', [DividendoController::class, 'store']);
   Route::delete('/carteiras/{carteiraId}/dividendos/{id}', [DividendoController::class, 'destroy']);
+
+  //RENDIMENTOS
+  Route::get('/carteiras/{carteiraId}/rendimentos', [RendimentoController::class, 'index']);
+  Route::post('/carteiras/{carteiraId}/rendimentos', [RendimentoController::class, 'store']);
+  Route::put('/carteiras/{carteiraId}/rendimentos/{id}', [RendimentoController::class, 'update']);
+  Route::delete('/carteiras/{carteiraId}/rendimentos/{id}', [RendimentoController::class, 'destroy']);
 });
