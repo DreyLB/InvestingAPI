@@ -3,26 +3,27 @@
 namespace App\Domain\Entities;
 
 use DateTime;
+use JsonSerializable;
 
-class Meta
+class Meta implements JsonSerializable
 {
   private ?int $id;
   private string $nome;
   private string $descricao;
   private float $valor;
-  private DateTime $dataLimite;
+  private ?DateTime $dataLimite;
 
   public function __construct(
     ?int $id,
     string $nome,
     string $descricao,
     float $valor,
-    DateTime $dataLimite
+    ?DateTime $dataLimite
   ) {
-    $this->id = $id;
-    $this->nome = $nome;
-    $this->descricao = $descricao;
-    $this->valor = $valor;
+    $this->id         = $id;
+    $this->nome       = $nome;
+    $this->descricao  = $descricao;
+    $this->valor      = $valor;
     $this->dataLimite = $dataLimite;
   }
 
@@ -30,7 +31,6 @@ class Meta
   {
     return $this->id;
   }
-
   public function setId(?int $id): void
   {
     $this->id = $id;
@@ -40,7 +40,6 @@ class Meta
   {
     return $this->nome;
   }
-
   public function setNome(string $nome): void
   {
     $this->nome = $nome;
@@ -50,7 +49,6 @@ class Meta
   {
     return $this->descricao;
   }
-
   public function setDescricao(string $descricao): void
   {
     $this->descricao = $descricao;
@@ -60,19 +58,28 @@ class Meta
   {
     return $this->valor;
   }
-
   public function setValor(float $valor): void
   {
     $this->valor = $valor;
   }
 
-  public function getDataLimite(): DateTime
+  public function getDataLimite(): ?DateTime
   {
     return $this->dataLimite;
   }
-
-  public function setDataLimite(DateTime $dataLimite): void
+  public function setDataLimite(?DateTime $dataLimite): void
   {
     $this->dataLimite = $dataLimite;
+  }
+
+  public function jsonSerialize(): mixed
+  {
+    return [
+      'id'          => $this->id,
+      'nome'        => $this->nome,
+      'descricao'   => $this->descricao,
+      'valor'       => $this->valor,
+      'data_limite' => $this->dataLimite?->format('Y-m-d'),
+    ];
   }
 }

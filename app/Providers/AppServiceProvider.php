@@ -44,5 +44,9 @@ class AppServiceProvider extends ServiceProvider
             \App\Domain\Repositories\RendimentoRepositoryInterface::class,
             \App\Infrastructure\Persistence\RendimentoRepository::class,
         );
+        $this->app->bind(
+            \App\Domain\Repositories\MetaRepositoryInterface::class,
+            \App\Infrastructure\Persistence\MetaRepository::class,
+        );
     }
 }
