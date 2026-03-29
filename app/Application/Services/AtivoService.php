@@ -17,7 +17,7 @@ class AtivoService
         private CarteiraRepository $carteiraRepository
     ) {}
 
-    private function assertCarteiraDoUsuario(int $carteiraId, int $userId): void
+    private function assetCarteiraDoUsuario(int $carteiraId, int $userId): void
     {
         if (! $this->carteiraRepository->findByIdAndUserId($carteiraId, $userId)) {
             throw new ModelNotFoundException('Carteira não encontrada ou não pertence ao usuário.');
@@ -27,15 +27,14 @@ class AtivoService
     public function listarAtivos(int $carteiraId): array
     {
         $userId = (int) Auth::id();
-        $this->assertCarteiraDoUsuario($carteiraId, $userId);
-
+        $this->assetCarteiraDoUsuario($carteiraId, $userId);
         return $this->ativoRepository->listarPorCarteira($carteiraId);
     }
 
     public function buscarAtivo(int $carteiraId, int $ativoId): Ativo
     {
         $userId = (int) Auth::id();
-        $this->assertCarteiraDoUsuario($carteiraId, $userId);
+        $this->assetCarteiraDoUsuario($carteiraId, $userId);
 
         $ativo = $this->ativoRepository->findByIdAndCarteira($ativoId, $carteiraId);
         if (! $ativo) {
@@ -48,7 +47,7 @@ class AtivoService
     public function criarAtivo(int $carteiraId, array $dados): Ativo
     {
         $userId = (int) Auth::id();
-        $this->assertCarteiraDoUsuario($carteiraId, $userId);
+        $this->assetCarteiraDoUsuario($carteiraId, $userId);
 
         $agora = new DateTime();
 

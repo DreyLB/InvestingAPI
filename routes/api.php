@@ -24,7 +24,7 @@ Route::middleware('auth:api')->group(function () {
   Route::apiResource('/carteiras', CarteiraController::class);
 
   // ASSETS (ativos dentro de uma carteira)
-  Route::apiResource('carteira.ativos', AtivoController::class)
+  Route::apiResource('carteiras.ativos', AtivoController::class)
     ->parameters([
       'ativos' => 'ativoId',      // renomeia o parâmetro do ativo
       'carteiras' => 'carteiraId' // renomeia o parâmetro da carteira

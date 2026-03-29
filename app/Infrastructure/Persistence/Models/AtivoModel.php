@@ -35,8 +35,8 @@ class AtivoModel extends Model
     return $this->belongsTo(CategoriaModel::class, 'category_id');
   }
 
-  /* public function tipo(): BelongsTo
+  public function assetType(): BelongsTo
   {
     return $this->belongsTo(AssetTypeModel::class, 'asset_type_id');
-  } */
+  }
 }
