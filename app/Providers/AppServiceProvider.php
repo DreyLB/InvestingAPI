@@ -30,5 +30,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(CarteiraRepositoryInterface::class, CarteiraRepository::class);
         $this->app->bind(AssetTypeRepositoryInterface::class, AssetTypeRepository::class);
+        $this->app->bind(
+            \App\Domain\Repositories\CategoriaRepositoryInterface::class,
+            \App\Infrastructure\Persistence\CategoriaRepository::class,
+        );
     }
 }

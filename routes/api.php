@@ -6,6 +6,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\CarteiraController;
 use App\Http\Controllers\API\AtivoController;
 use App\Http\Controllers\API\AssetTypeController;
+use App\Http\Controllers\API\CategoriaController;
 
 //ROTAS PUBLICAS
 Route::post('/register', [UserController::class, 'register']);
@@ -24,7 +25,7 @@ Route::middleware('auth:api')->group(function () {
   Route::apiResource('/carteiras', CarteiraController::class);
 
   // ASSETS (ativos dentro de uma carteira)
-  Route::apiResource('carteiras.ativos', AtivoController::class)
+  Route::apiResource('carteira.ativos', AtivoController::class)
     ->parameters([
       'ativos' => 'ativoId',      // renomeia o parâmetro do ativo
       'carteiras' => 'carteiraId' // renomeia o parâmetro da carteira
@@ -35,4 +36,7 @@ Route::middleware('auth:api')->group(function () {
       'tipoativo' => 'tipoAtivoId',      // renomeia o parâmetro do ativo
       'carteiras' => 'carteiraId' // renomeia o parâmetro da carteira
     ]);
+
+  //CATEGORIES
+  Route::apiResource('/categorias', CategoriaController::class);
 });
