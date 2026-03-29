@@ -3,14 +3,18 @@
 namespace App\Infrastructure\Persistence\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DividendoModel extends Model
 {
-  protected $table = 'ativo';
+  use SoftDeletes;
 
-  protected $fillable = [
-    'periodoInicial',
-    'valor',
-  ];
+  protected $table = 'dividends';
+
+  protected $fillable = ['asset_id', 'valor', 'data'];
+
+  public function ativo()
+  {
+    return $this->belongsTo(AtivoModel::class, 'asset_id');
+  }
 }
