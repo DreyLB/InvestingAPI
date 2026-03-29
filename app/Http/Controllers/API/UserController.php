@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Application\Services\UserService;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -52,5 +53,24 @@ class UserController extends Controller
       'message' => 'Login realizado com sucesso',
       'token' => $token
     ], 200);
+  }
+
+  public function logout()
+  {
+    try {
+      $this->userService->logoutUser();
+      return response()->json(['message' => 'Logout realizado com sucesso'], 200);
+    } catch (\Exception $e) {
+      return response()->json(['error' => $e->getMessage()], 500);
+    }
+  }
+
+  public function me()
+  {
+    $user = JWTAuth::user();
+    return response()->json(['user' => [
+      'name' => $user->name,
+      'email' => $user->email,
+    ]], 200);
   }
 }

@@ -18,6 +18,7 @@ Route::middleware('auth:api')->group(function () {
 
   // USER
   Route::post('/logout', [UserController::class, 'logout']);
+  Route::get('/me', [UserController::class, 'me']);
 
   // WALLET
   Route::apiResource('/carteiras', CarteiraController::class);

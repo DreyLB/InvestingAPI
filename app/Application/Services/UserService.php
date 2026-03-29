@@ -52,4 +52,18 @@ class UserService
       ],
     ];
   }
+
+  public function logoutUser(): void
+  {
+    JWTAuth::invalidate(JWTAuth::getToken());
+  }
+
+  public function getAuthenticatedUser(): array
+  {
+    $user = JWTAuth::user();
+    return [
+      'name' => $user->name,
+      'email' => $user->email,
+    ];
+  }
 }
