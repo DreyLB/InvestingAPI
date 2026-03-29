@@ -48,5 +48,9 @@ class AppServiceProvider extends ServiceProvider
             \App\Domain\Repositories\MetaRepositoryInterface::class,
             \App\Infrastructure\Persistence\MetaRepository::class,
         );
+        $this->app->bind(
+            \App\Domain\Repositories\AlertaRepositoryInterface::class,
+            \App\Infrastructure\Persistence\AlertaRepository::class,
+        );
     }
 }

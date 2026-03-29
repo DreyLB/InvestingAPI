@@ -11,6 +11,7 @@ use App\Http\Controllers\API\TransacaoController;
 use App\Http\Controllers\API\DividendoController;
 use App\Http\Controllers\API\RendimentoController;
 use App\Http\Controllers\API\MetaController;
+use App\Http\Controllers\API\AlertaController;
 
 //ROTAS PUBLICAS
 Route::post('/register', [UserController::class, 'register']);
@@ -72,4 +73,10 @@ Route::middleware('auth:api')->group(function () {
   Route::post('/carteiras/{carteiraId}/metas', [MetaController::class, 'store']);
   Route::put('/carteiras/{carteiraId}/metas/{id}', [MetaController::class, 'update']);
   Route::delete('/carteiras/{carteiraId}/metas/{id}', [MetaController::class, 'destroy']);
+
+  //ALERTAS
+  Route::get('/carteiras/{carteiraId}/alertas', [AlertaController::class, 'index']);
+  Route::post('/carteiras/{carteiraId}/alertas', [AlertaController::class, 'store']);
+  Route::patch('/carteiras/{carteiraId}/alertas/{id}/lido', [AlertaController::class, 'marcarComoLido']);
+  Route::delete('/carteiras/{carteiraId}/alertas/{id}', [AlertaController::class, 'destroy']);
 });
