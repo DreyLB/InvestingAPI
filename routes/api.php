@@ -15,6 +15,7 @@ use App\Http\Controllers\API\AlertaController;
 // ROTAS PÚBLICAS
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
+Route::get('/asset-types', [AssetTypeController::class, 'index']);
 
 // ROTAS AUTENTICADAS
 Route::middleware('auth:api')->group(function () {
@@ -27,7 +28,7 @@ Route::middleware('auth:api')->group(function () {
   Route::apiResource('carteiras', CarteiraController::class);
 
   // ATIVOS (aninhado em carteiras)
-  Route::apiResource('carteiras.ativos', AtivoController::class)
+  Route::apiResource('carteira.ativos', AtivoController::class)
     ->parameters([
       'ativos'    => 'ativoId',
       'carteiras' => 'carteiraId',
