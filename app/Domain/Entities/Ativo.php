@@ -97,7 +97,7 @@ class Ativo implements JsonSerializable
   {
     $this->nome = $nome;
   }
-  public function setQuantidade(int $quantidade): void
+  public function setQuantidade(float $quantidade): void
   {
     $this->quantidade = $quantidade;
   }

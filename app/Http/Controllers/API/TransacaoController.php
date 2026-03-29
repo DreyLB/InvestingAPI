@@ -53,6 +53,8 @@ class TransacaoController extends Controller
       ], 201);
     } catch (ModelNotFoundException $e) {
       return response()->json(['message' => $e->getMessage()], 404);
+    } catch (\InvalidArgumentException $e) {
+      return response()->json(['message' => $e->getMessage()], 400);
     }
   }
 

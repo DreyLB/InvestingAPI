@@ -55,13 +55,56 @@ class TransacaoService
     $transacao = new Transacao(
       null,
       $dados['tipo'],
-      (int) $dados['quantidade'],
+      (float) $dados['quantidade'],
       (float) $dados['valor'],
       new DateTime($dados['data'])
     );
 
     $this->transacaoRepository->save($transacao, $ativoId);
+
+    // 👇 Atualiza o ativo após registrar a transação
+    $this->atualizarAtivo($ativoId, $carteiraId, $dados);
+
     return $transacao;
+  }
+
+  private function atualizarAtivo(int $ativoId, int $carteiraId, array $dados): void
+  {
+    $ativo = $this->ativoRepository->findByIdAndCarteira($ativoId, $carteiraId);
+
+    if (!$ativo) return;
+
+    $tipo         = $dados['tipo'];
+    $qtdTransacao = (float) $dados['quantidade'];
+    $valorUnitario = (float) $dados['valor'] / (float) $dados['quantidade'];
+
+    if ($tipo === 'compra') {
+      // Recalcula preço médio ponderado
+      $totalAtual  = $ativo->getQuantidade() * $ativo->getPrecoMedio();
+      $totalNovo   = $qtdTransacao * $valorUnitario;
+      $qtdTotal    = $ativo->getQuantidade() + $qtdTransacao;
+
+      $novoPrecoMedio = $qtdTotal > 0
+        ? ($totalAtual + $totalNovo) / $qtdTotal
+        : $valorUnitario;
+
+      $ativo->setQuantidade($qtdTotal);
+      $ativo->setPrecoMedio($novoPrecoMedio);
+    } elseif ($tipo === 'venda') {
+      $novaQtd = $ativo->getQuantidade() - $qtdTransacao;
+
+      if ($novaQtd < 0) {
+        throw new \InvalidArgumentException(
+          'Quantidade vendida maior do que a quantidade disponível.'
+        );
+      }
+
+      $ativo->setQuantidade($novaQtd);
+      // Preço médio não muda na venda
+    }
+
+    $ativo->setUpdatedAt(new DateTime());
+    $this->ativoRepository->save($ativo);
   }
 
   public function remover(int $carteiraId, int $id): void
