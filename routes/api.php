@@ -7,6 +7,7 @@ use App\Http\Controllers\API\CarteiraController;
 use App\Http\Controllers\API\AtivoController;
 use App\Http\Controllers\API\AssetTypeController;
 use App\Http\Controllers\API\CategoriaController;
+use App\Http\Controllers\API\TransacaoController;
 
 //ROTAS PUBLICAS
 Route::post('/register', [UserController::class, 'register']);
@@ -39,4 +40,14 @@ Route::middleware('auth:api')->group(function () {
 
   //CATEGORIES
   Route::apiResource('/categorias', CategoriaController::class);
+
+  //TRANSACTIONS
+  Route::get('/carteiras/{carteiraId}/transacoes', [TransacaoController::class, 'porCarteira']);
+
+  // Transações de um ativo específico + criar
+  Route::get('/carteiras/{carteiraId}/ativos/{ativoId}/transacoes', [TransacaoController::class, 'index']);
+  Route::post('/carteiras/{carteiraId}/ativos/{ativoId}/transacoes', [TransacaoController::class, 'store']);
+
+  // Deletar transação
+  Route::delete('/carteiras/{carteiraId}/transacoes/{id}', [TransacaoController::class, 'destroy']);
 });

@@ -9,6 +9,11 @@ use App\Domain\Repositories\CarteiraRepositoryInterface;
 use App\Infrastructure\Persistence\CarteiraRepository;
 use App\Domain\Repositories\AssetTypeRepositoryInterface;
 use App\Infrastructure\Persistence\AssetTypeRepository;
+use App\Domain\Repositories\CategoriaRepositoryInterface;
+use App\Infrastructure\Persistence\CategoriaRepository;
+
+use App\Domain\Repositories\TransacaoRepositoryInterface;
+use App\Infrastructure\Persistence\TransacaoRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,9 +35,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(CarteiraRepositoryInterface::class, CarteiraRepository::class);
         $this->app->bind(AssetTypeRepositoryInterface::class, AssetTypeRepository::class);
-        $this->app->bind(
-            \App\Domain\Repositories\CategoriaRepositoryInterface::class,
-            \App\Infrastructure\Persistence\CategoriaRepository::class,
-        );
+        $this->app->bind(CategoriaRepositoryInterface::class, CategoriaRepository::class);
+        $this->app->bind(TransacaoRepositoryInterface::class, TransacaoRepository::class);
     }
 }
