@@ -1,6 +1,5 @@
 <?php
 
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\CarteiraController;
@@ -13,11 +12,9 @@ use App\Http\Controllers\API\RendimentoController;
 use App\Http\Controllers\API\MetaController;
 use App\Http\Controllers\API\AlertaController;
 
-//ROTAS PUBLICAS
+// ROTAS PÚBLICAS
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
-
-//ROTAS AUTENTICADAS
 
 // ROTAS AUTENTICADAS
 Route::middleware('auth:api')->group(function () {
@@ -26,57 +23,77 @@ Route::middleware('auth:api')->group(function () {
   Route::post('/logout', [UserController::class, 'logout']);
   Route::get('/me', [UserController::class, 'me']);
 
-  // WALLET
-  Route::apiResource('/carteiras', CarteiraController::class);
+  // CARTEIRAS
+  Route::apiResource('carteiras', CarteiraController::class);
 
-  // ASSETS (ativos dentro de uma carteira)
-  Route::apiResource('carteira.ativos', AtivoController::class)
+  // ATIVOS (aninhado em carteiras)
+  Route::apiResource('carteiras.ativos', AtivoController::class)
     ->parameters([
-      'ativos' => 'ativoId',      // renomeia o parâmetro do ativo
-      'carteiras' => 'carteiraId' // renomeia o parâmetro da carteira
+      'ativos'    => 'ativoId',
+      'carteiras' => 'carteiraId',
     ]);
 
+  // TIPO DE ATIVO (aninhado em carteiras)
   Route::apiResource('carteiras.tipo.ativo', AssetTypeController::class)
     ->parameters([
-      'tipoativo' => 'tipoAtivoId',      // renomeia o parâmetro do ativo
-      'carteiras' => 'carteiraId' // renomeia o parâmetro da carteira
+      'ativo'     => 'tipoAtivoId',
+      'carteiras' => 'carteiraId',
     ]);
 
-  //CATEGORIES
-  Route::apiResource('/categorias', CategoriaController::class);
+  // CATEGORIAS
+  Route::apiResource('categorias', CategoriaController::class);
 
-  //TRANSACTIONS
-  Route::get('/carteiras/{carteiraId}/transacoes', [TransacaoController::class, 'porCarteira']);
+  // TRANSAÇÕES
+  Route::apiResource('carteiras.ativos.transacoes', TransacaoController::class)
+    ->parameters([
+      'carteiras'  => 'carteiraId',
+      'ativos'     => 'ativoId',
+      'transacoes' => 'id',
+    ])
+    ->except(['show', 'update']);
 
-  // Transações de um ativo específico + criar
-  Route::get('/carteiras/{carteiraId}/ativos/{ativoId}/transacoes', [TransacaoController::class, 'index']);
-  Route::post('/carteiras/{carteiraId}/ativos/{ativoId}/transacoes', [TransacaoController::class, 'store']);
-  Route::post('/carteiras/{carteiraId}/comprar', [TransacaoController::class, 'comprar']);
+  // Rota extra: todas as transações de uma carteira (sem ativo específico)
+  Route::get('carteiras/{carteiraId}/transacoes', [TransacaoController::class, 'porCarteira']);
 
-  // Deletar transação
-  Route::delete('/carteiras/{carteiraId}/transacoes/{id}', [TransacaoController::class, 'destroy']);
+  // Rota extra: comprar ativo
+  Route::post('carteiras/{carteiraId}/comprar', [TransacaoController::class, 'comprar']);
 
-  //DIVIDENDS
-  Route::get('/carteiras/{carteiraId}/dividendos', [DividendoController::class, 'porCarteira']);
-  Route::get('/carteiras/{carteiraId}/ativos/{ativoId}/dividendos', [DividendoController::class, 'index']);
-  Route::post('/carteiras/{carteiraId}/ativos/{ativoId}/dividendos', [DividendoController::class, 'store']);
-  Route::delete('/carteiras/{carteiraId}/dividendos/{id}', [DividendoController::class, 'destroy']);
+  // DIVIDENDOS
+  Route::apiResource('carteiras.ativos.dividendos', DividendoController::class)
+    ->parameters([
+      'carteiras' => 'carteiraId',
+      'ativos'    => 'ativoId',
+      'dividendos' => 'id',
+    ])
+    ->except(['show', 'update']);
 
-  //RENDIMENTOS
-  Route::get('/carteiras/{carteiraId}/rendimentos', [RendimentoController::class, 'index']);
-  Route::post('/carteiras/{carteiraId}/rendimentos', [RendimentoController::class, 'store']);
-  Route::put('/carteiras/{carteiraId}/rendimentos/{id}', [RendimentoController::class, 'update']);
-  Route::delete('/carteiras/{carteiraId}/rendimentos/{id}', [RendimentoController::class, 'destroy']);
+  // Rota extra: todos os dividendos de uma carteira (sem ativo específico)
+  Route::get('carteiras/{carteiraId}/dividendos', [DividendoController::class, 'porCarteira']);
 
-  //METAS
-  Route::get('/carteiras/{carteiraId}/metas', [MetaController::class, 'index']);
-  Route::post('/carteiras/{carteiraId}/metas', [MetaController::class, 'store']);
-  Route::put('/carteiras/{carteiraId}/metas/{id}', [MetaController::class, 'update']);
-  Route::delete('/carteiras/{carteiraId}/metas/{id}', [MetaController::class, 'destroy']);
+  // RENDIMENTOS
+  Route::apiResource('carteiras.rendimentos', RendimentoController::class)
+    ->parameters([
+      'carteiras'   => 'carteiraId',
+      'rendimentos' => 'id',
+    ])
+    ->except(['show']);
 
-  //ALERTAS
-  Route::get('/carteiras/{carteiraId}/alertas', [AlertaController::class, 'index']);
-  Route::post('/carteiras/{carteiraId}/alertas', [AlertaController::class, 'store']);
-  Route::patch('/carteiras/{carteiraId}/alertas/{id}/lido', [AlertaController::class, 'marcarComoLido']);
-  Route::delete('/carteiras/{carteiraId}/alertas/{id}', [AlertaController::class, 'destroy']);
+  // METAS
+  Route::apiResource('carteiras.metas', MetaController::class)
+    ->parameters([
+      'carteiras' => 'carteiraId',
+      'metas'     => 'id',
+    ])
+    ->except(['show']);
+
+  // ALERTAS
+  Route::apiResource('carteiras.alertas', AlertaController::class)
+    ->parameters([
+      'carteiras' => 'carteiraId',
+      'alertas'   => 'id',
+    ])
+    ->except(['show', 'update']);
+
+  // Rota extra: marcar alerta como lido (fora do padrão REST)
+  Route::patch('carteiras/{carteiraId}/alertas/{id}/lido', [AlertaController::class, 'marcarComoLido']);
 });
