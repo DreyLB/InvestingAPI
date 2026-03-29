@@ -6,6 +6,7 @@ namespace App\Http\Controllers\API;
 use App\Application\Services\TransacaoService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TransacaoRequest;
+use App\Http\Requests\TransacaoCompraRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 
@@ -50,6 +51,24 @@ class TransacaoController extends Controller
       return response()->json([
         'message' => 'Transação registrada com sucesso!',
         'data'    => $transacao,
+      ], 201);
+    } catch (ModelNotFoundException $e) {
+      return response()->json(['message' => $e->getMessage()], 404);
+    } catch (\InvalidArgumentException $e) {
+      return response()->json(['message' => $e->getMessage()], 400);
+    }
+  }
+
+  // POST /carteiras/{carteiraId}/comprar
+  public function comprar(TransacaoCompraRequest $request, int $carteiraId): JsonResponse
+  {
+    try {
+      $resultado = $this->service->comprar($carteiraId, $request->validated());
+
+      return response()->json([
+        'message'   => 'Compra registrada com sucesso!',
+        'ativo'     => $resultado['ativo'],
+        'transacao' => $resultado['transacao'],
       ], 201);
     } catch (ModelNotFoundException $e) {
       return response()->json(['message' => $e->getMessage()], 404);

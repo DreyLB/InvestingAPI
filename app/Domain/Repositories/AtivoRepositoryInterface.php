@@ -6,8 +6,9 @@ use App\Domain\Entities\Ativo;
 
 interface AtivoRepositoryInterface
 {
-    public function save(Ativo $ativo): void; 
+    public function save(Ativo $ativo): void;
     public function listarPorCarteira(int $carteiraId): array;
     public function findByIdAndCarteira(int $id, int $carteiraId): ?Ativo;
     public function delete(int $id, int $carteiraId): void;
+    public function findByNomeAndCarteira(string $nome, int $carteiraId): ?Ativo;
 }

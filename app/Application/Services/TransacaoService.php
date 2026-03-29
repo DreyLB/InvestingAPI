@@ -52,17 +52,17 @@ class TransacaoService
     $this->validarPropriedadeCarteira($carteiraId);
     $this->validarPropriedadeAtivo($ativoId, $carteiraId);
 
+    $valorTotal = (float) $dados['valor'] * (float) $dados['quantidade']; // 👈
+
     $transacao = new Transacao(
       null,
       $dados['tipo'],
       (float) $dados['quantidade'],
-      (float) $dados['valor'],
+      $valorTotal,
       new DateTime($dados['data'])
     );
 
     $this->transacaoRepository->save($transacao, $ativoId);
-
-    // 👇 Atualiza o ativo após registrar a transação
     $this->atualizarAtivo($ativoId, $carteiraId, $dados);
 
     return $transacao;
@@ -105,6 +105,66 @@ class TransacaoService
 
     $ativo->setUpdatedAt(new DateTime());
     $this->ativoRepository->save($ativo);
+  }
+
+  public function comprar(int $carteiraId, array $dados): array
+  {
+    $this->validarPropriedadeCarteira($carteiraId);
+
+    $precoUnitario = (float) $dados['valor'];
+    $quantidade    = (float) $dados['quantidade'];
+    $valorTotal    = $precoUnitario * $quantidade; // 👈 valor total = preço × qtd
+
+    $ativo = $this->ativoRepository->findByNomeAndCarteira(
+      $dados['nome'],
+      $carteiraId
+    );
+
+    if ($ativo) {
+      // Ativo já existe — recalcula preço médio ponderado
+      $totalAtual = $ativo->getQuantidade() * $ativo->getPrecoMedio();
+      $totalNovo  = $quantidade * $precoUnitario;
+      $qtdTotal   = $ativo->getQuantidade() + $quantidade;
+
+      $ativo->setQuantidade($qtdTotal);
+      $ativo->setPrecoMedio(($totalAtual + $totalNovo) / $qtdTotal);
+      $ativo->setPreco($precoUnitario);
+      $ativo->setUpdatedAt(new DateTime());
+
+      $this->ativoRepository->save($ativo);
+    } else {
+      // Ativo não existe — cria novo
+      $ativo = new \App\Domain\Entities\Ativo(
+        0,
+        $carteiraId,
+        $dados['category_id'] ?? null,
+        $dados['nome'],
+        (int) $dados['asset_type_id'],
+        $quantidade,
+        $precoUnitario,
+        $precoUnitario, // preço médio inicial = preço unitário da compra
+        new DateTime(),
+        new DateTime()
+      );
+
+      $this->ativoRepository->save($ativo);
+    }
+
+    // Registra transação com valor total
+    $transacao = new \App\Domain\Entities\Transacao(
+      null,
+      'compra',
+      $quantidade,
+      $valorTotal,
+      new DateTime($dados['data'])
+    );
+
+    $this->transacaoRepository->save($transacao, $ativo->getId());
+
+    return [
+      'ativo'     => $ativo,
+      'transacao' => $transacao,
+    ];
   }
 
   public function remover(int $carteiraId, int $id): void

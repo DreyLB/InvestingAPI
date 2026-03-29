@@ -18,17 +18,21 @@ class AtivoRepository implements AtivoRepositoryInterface
       ->firstOrFail()
       : new AtivoModel();
 
-    if (! $ativo->getId()) {
+    if (!$ativo->getId()) {
       $model->wallet_id = $ativo->getCarteiraId();
     }
 
-    $model->category_id    = $ativo->getCategoriaId();
-    $model->asset_type_id  = $ativo->getTipoId();
-    $model->name           = $ativo->getNome();
-    $model->quantity       = $ativo->getQuantidade();
-    $model->price          = $ativo->getPreco();
-    $model->average_price  = $ativo->getPrecoMedio();
+    $model->category_id   = $ativo->getCategoriaId();
+    $model->asset_type_id = $ativo->getTipoId();
+    $model->name          = $ativo->getNome();
+    $model->quantity      = $ativo->getQuantidade();
+    $model->price         = $ativo->getPreco();
+    $model->average_price = $ativo->getPrecoMedio();
     $model->save();
+
+    if (!$ativo->getId()) {
+      $ativo->setId($model->id);
+    }
   }
 
   public function listarPorCarteira(int $carteiraId): array
@@ -44,6 +48,15 @@ class AtivoRepository implements AtivoRepositoryInterface
   {
     $model = AtivoModel::with('assetType')
       ->where('id', $id)
+      ->where('wallet_id', $carteiraId)
+      ->first();
+
+    return $model ? $this->toEntity($model) : null;
+  }
+
+  public function findByNomeAndCarteira(string $nome, int $carteiraId): ?Ativo
+  {
+    $model = AtivoModel::where('name', $nome)
       ->where('wallet_id', $carteiraId)
       ->first();
 
@@ -72,6 +85,7 @@ class AtivoRepository implements AtivoRepositoryInterface
       new DateTime($model->updated_at)
     );
   }
+
   private function toArray(AtivoModel $model): array
   {
     return [

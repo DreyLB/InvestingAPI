@@ -3,8 +3,9 @@
 namespace App\Domain\Entities;
 
 use DateTime;
+use JsonSerializable;
 
-class Transacao
+class Transacao implements JsonSerializable
 {
   private ?int $id;
   private string $tipo;
@@ -74,5 +75,15 @@ class Transacao
   public function setData(DateTime $data): void
   {
     $this->data = $data;
+  }
+  public function jsonSerialize(): mixed
+  {
+    return [
+      'id'         => $this->id,
+      'tipo'       => $this->tipo,
+      'quantidade' => $this->quantidade,
+      'valor'      => $this->valor,
+      'data'       => $this->data->format('Y-m-d'),
+    ];
   }
 }

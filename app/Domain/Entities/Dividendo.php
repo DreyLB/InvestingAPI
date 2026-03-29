@@ -3,8 +3,9 @@
 namespace App\Domain\Entities;
 
 use DateTime;
+use JsonSerializable;
 
-class Dividendo
+class Dividendo implements JsonSerializable
 {
   private ?int $id;
   private ?DateTime $periodoInicial;
@@ -45,5 +46,13 @@ class Dividendo
   public function setValor(float $valor): void
   {
     $this->valor = $valor;
+  }
+  public function jsonSerialize(): mixed
+  {
+    return [
+      'id'    => $this->id,
+      'valor' => $this->valor,
+      'data'  => $this->periodoInicial?->format('Y-m-d'),
+    ];
   }
 }

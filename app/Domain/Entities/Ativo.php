@@ -85,6 +85,10 @@ class Ativo implements JsonSerializable
   }
 
   // --- Setters ---
+  public function setId(int $id): void
+  {
+    $this->id = $id;
+  }
   public function setCarteiraId(int $carteira_id): void
   {
     $this->carteira_id = $carteira_id;

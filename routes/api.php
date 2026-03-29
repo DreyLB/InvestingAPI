@@ -48,6 +48,7 @@ Route::middleware('auth:api')->group(function () {
   // Transações de um ativo específico + criar
   Route::get('/carteiras/{carteiraId}/ativos/{ativoId}/transacoes', [TransacaoController::class, 'index']);
   Route::post('/carteiras/{carteiraId}/ativos/{ativoId}/transacoes', [TransacaoController::class, 'store']);
+  Route::post('/carteiras/{carteiraId}/comprar', [TransacaoController::class, 'comprar']);
 
   // Deletar transação
   Route::delete('/carteiras/{carteiraId}/transacoes/{id}', [TransacaoController::class, 'destroy']);
