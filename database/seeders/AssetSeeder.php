@@ -155,6 +155,82 @@ class AssetSeeder extends Seeder
       ['ticker' => 'BHIA3',  'nome' => 'Casas Bahia'],
     ];
 
+    $fiis = [
+      // Shoppings
+      ['ticker' => 'XPML11', 'name' => 'XP Malls FII',                    'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'HGBS11', 'name' => 'Hedge Brasil Shopping FII',       'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'VISC11', 'name' => 'Vinci Shopping Centers FII',      'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'MALL11', 'name' => 'Malls Brasil Plural FII',         'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'HSML11', 'name' => 'HSI Malls FII',                   'asset_type_id' => 2, 'category_id' => 1],
+
+      // Lajes Corporativas
+      ['ticker' => 'HGRE11', 'name' => 'CSHG Real Estate FII',            'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'BRCR11', 'name' => 'BC Fund FII',                     'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'RBRP11', 'name' => 'RBR Properties FII',              'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'PVBI11', 'name' => 'VBI Prime Properties FII',        'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'PATL11', 'name' => 'Pátria Lajes Corporativas FII',   'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'XPPR11', 'name' => 'XP Properties FII',              'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'VLOL11', 'name' => 'VBI Logístico FII',               'asset_type_id' => 2, 'category_id' => 1],
+
+      // Logística
+      ['ticker' => 'HGLG11', 'name' => 'CSHG Logística FII',             'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'XPLG11', 'name' => 'XP Log FII',                     'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'BRCO11', 'name' => 'Bresco Logística FII',           'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'VILG11', 'name' => 'Vinci Logística FII',            'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'LVBI11', 'name' => 'VBI Logístico FII',              'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'BTLG11', 'name' => 'BTG Pactual Logística FII',      'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'GGRC11', 'name' => 'GGR Covepi Renda FII',           'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'ALZR11', 'name' => 'Alianza Trust Renda Imob. FII',  'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'GARE11', 'name' => 'Guardian Real Estate FII',       'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'TRXF11', 'name' => 'TRX Real Estate FII',            'asset_type_id' => 2, 'category_id' => 1],
+
+      // Papel / CRI
+      ['ticker' => 'KNCR11', 'name' => 'Kinea Rendimentos Imob. FII',    'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'KNIP11', 'name' => 'Kinea Índices de Preços FII',    'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'MXRF11', 'name' => 'Maxi Renda FII',                 'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'HGCR11', 'name' => 'CSHG Recebíveis Imob. FII',     'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'VRTA11', 'name' => 'Fator Verita FII',               'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'BCRI11', 'name' => 'Banestes Recebíveis Imob. FII',  'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'RBRY11', 'name' => 'RBR Rendimento High Grade FII',  'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'IRDM11', 'name' => 'Iridium Recebíveis Imob. FII',   'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'RECR11', 'name' => 'REC Recebíveis Imob. FII',       'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'RBRR11', 'name' => 'RBR High Grade FII',             'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'VGIR11', 'name' => 'Valora RE III FII',              'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'TPFT11', 'name' => 'TG Ativo Real FII',              'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'CPTS11', 'name' => 'Capitânia Securities II FII',    'asset_type_id' => 2, 'category_id' => 1],
+
+      // Híbridos / Fundo de Fundos
+      ['ticker' => 'BPFF11', 'name' => 'Brasil Plural Absoluto FoF FII', 'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'BCFF11', 'name' => 'BTG Pactual Fundo de Fundos FII', 'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'RBRF11', 'name' => 'RBR Alpha FoF FII',              'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'KFOF11', 'name' => 'Kinea FoF FII',                  'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'MGFF11', 'name' => 'Mogno FoF FII',                  'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'HFOF11', 'name' => 'Hedge Top FoF III FII',          'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'FISD11', 'name' => 'MORE FoF FII',                   'asset_type_id' => 2, 'category_id' => 1],
+
+      // Residencial
+      ['ticker' => 'RZAK11', 'name' => 'Riza Arctium Real Estate FII',   'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'HOSI11', 'name' => 'Housi FII',                      'asset_type_id' => 2, 'category_id' => 1],
+
+      // Agro / Rural
+      ['ticker' => 'RURA11', 'name' => 'Itaú Asset Rural FII',           'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'HRUR11', 'name' => 'Hedge Ativos Rurais FII',        'asset_type_id' => 2, 'category_id' => 1],
+
+      // Educacional / Hospitalar
+      ['ticker' => 'HCTR11', 'name' => 'Hectare CE FII',                 'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'NSLU11', 'name' => 'NS Luta CRI FII',                'asset_type_id' => 2, 'category_id' => 1],
+
+      // Outros populares
+      ['ticker' => 'KNRI11', 'name' => 'Kinea Renda Imobiliária FII',    'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'JSRE11', 'name' => 'JS Real Estate Multigestão FII', 'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'RBRX11', 'name' => 'RBR Alpha Multiestratégia FII',  'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'XPCI11', 'name' => 'XP Crédito Imobiliário FII',     'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'VINO11', 'name' => 'Vinci Offices FII',              'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'GTWR11', 'name' => 'GreenTowers FII',                'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'URPR11', 'name' => 'Urbana Prime FII',               'asset_type_id' => 2, 'category_id' => 1],
+      ['ticker' => 'PORD11', 'name' => 'Polo Recebíveis Imob. FII',      'asset_type_id' => 2, 'category_id' => 1],
+    ];
+
     $now = now();
 
     foreach ($acoes as $acao) {
@@ -166,6 +242,20 @@ class AssetSeeder extends Seeder
         'created_at'    => $now,
         'updated_at'    => $now,
       ]);
+    }
+
+    // Mapeia timestamps
+    $fiisComTimestamp = array_map(fn($f) => array_merge($f, [
+      'created_at' => $now,
+      'updated_at' => $now,
+    ]), $fiis);
+
+    // Insere sem duplicar (caso rode migrate:refresh sem --seed fresh)
+    foreach ($fiisComTimestamp as $fii) {
+      DB::table('assets')->updateOrInsert(
+        ['ticker' => $fii['ticker']],
+        $fii
+      );
     }
   }
 }
