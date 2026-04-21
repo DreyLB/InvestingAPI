@@ -5,19 +5,12 @@ namespace App\Infrastructure\Persistence\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class TransacaoModel extends Model
+class PositionModel extends Model
 {
   use SoftDeletes;
 
-  protected $table = 'transactions';
-  protected $fillable = [
-    'wallet_id',
-    'asset_id',
-    'tipo',
-    'quantidade',
-    'preco_unitario',
-    'data',
-  ];
+  protected $table = 'positions';
+  protected $fillable = ['wallet_id', 'asset_id', 'quantidade', 'preco_medio', 'valor_total'];
 
   public function carteira()
   {

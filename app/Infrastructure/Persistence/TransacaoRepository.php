@@ -10,23 +10,21 @@ use DateTime;
 
 class TransacaoRepository implements TransacaoRepositoryInterface
 {
-  public function listarPorAtivo(int $ativoId): array
+  public function listarPorCarteira(int $walletId): array
   {
-    return TransacaoModel::where('asset_id', $ativoId)
+    return TransacaoModel::where('wallet_id', $walletId)
+      ->with('asset')
       ->orderBy('data', 'desc')
       ->get()
       ->map(fn($m) => $this->toArray($m))
       ->toArray();
   }
 
-  public function listarPorCarteira(int $carteiraId): array
+  public function listarPorAsset(int $walletId, int $assetId): array
   {
-    return TransacaoModel::whereHas(
-      'ativo',
-      fn($q) =>
-      $q->where('wallet_id', $carteiraId)
-    )
-      ->with('ativo:id,name,wallet_id')
+    return TransacaoModel::where('wallet_id', $walletId)
+      ->where('asset_id', $assetId)
+      ->with('asset')
       ->orderBy('data', 'desc')
       ->get()
       ->map(fn($m) => $this->toArray($m))
@@ -39,17 +37,18 @@ class TransacaoRepository implements TransacaoRepositoryInterface
     return $model ? $this->toEntity($model) : null;
   }
 
-  public function save(Transacao $transacao, int $ativoId): void
+  public function save(Transacao $transacao): void
   {
     $model = $transacao->getId()
       ? TransacaoModel::findOrFail($transacao->getId())
       : new TransacaoModel();
 
-    $model->asset_id   = $ativoId;
-    $model->tipo       = $transacao->getTipo();
-    $model->quantidade = $transacao->getQuantidade();
-    $model->valor      = $transacao->getValor();
-    $model->data       = $transacao->getData()->format('Y-m-d');
+    $model->wallet_id      = $transacao->getWalletId();
+    $model->asset_id       = $transacao->getAssetId();
+    $model->tipo           = $transacao->getTipo();
+    $model->quantidade     = $transacao->getQuantidade();
+    $model->preco_unitario = $transacao->getPrecoUnitario();
+    $model->data           = $transacao->getData()->format('Y-m-d');
     $model->save();
 
     if (!$transacao->getId()) {
@@ -62,19 +61,19 @@ class TransacaoRepository implements TransacaoRepositoryInterface
     TransacaoModel::findOrFail($id)->delete();
   }
 
-  // Retorna array com nome do ativo junto — usado nas listagens
   private function toArray(TransacaoModel $model): array
   {
     return [
-      'id'         => $model->id,
-      'asset_id'   => $model->asset_id,
-      'ativo_nome' => $model->ativo?->name,
-      'tipo'       => $model->tipo,
-      'quantidade' => $model->quantidade,
-      'valor'      => $model->valor,
-      'data'       => $model->data,
-      'created_at' => $model->created_at,
-      'updated_at' => $model->updated_at,
+      'id'             => $model->id,
+      'wallet_id'      => $model->wallet_id,
+      'asset_id'       => $model->asset_id,
+      'ticker'         => $model->asset?->ticker,
+      'nome'           => $model->asset?->name,
+      'tipo'           => $model->tipo,
+      'quantidade'     => $model->quantidade,
+      'preco_unitario' => $model->preco_unitario,
+      'valor_total'    => $model->quantidade * $model->preco_unitario,
+      'data'           => $model->data,
     ];
   }
 
@@ -82,9 +81,11 @@ class TransacaoRepository implements TransacaoRepositoryInterface
   {
     return new Transacao(
       (int) $model->id,
+      (int) $model->wallet_id,
+      (int) $model->asset_id,
       $model->tipo,
-      (int) $model->quantidade,
-      (float) $model->valor,
+      (float) $model->quantidade,
+      (float) $model->preco_unitario,
       new DateTime($model->data)
     );
   }

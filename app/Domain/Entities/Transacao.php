@@ -7,83 +7,66 @@ use JsonSerializable;
 
 class Transacao implements JsonSerializable
 {
-  private ?int $id;
-  private string $tipo;
-  private int $quantidade;
-  private float $valor;
-  private DateTime $data;
-
   public function __construct(
-    ?int $id,
-    string $tipo,
-    int $quantidade,
-    float $valor,
-    DateTime $data
-  ) {
-    $this->id = $id;
-    $this->tipo = $tipo;
-    $this->quantidade = $quantidade;
-    $this->valor = $valor;
-    $this->data = $data;
-  }
+    private ?int $id,
+    private int $walletId,
+    private int $assetId,
+    private string $tipo,
+    private float $quantidade,
+    private float $precoUnitario,
+    private DateTime $data
+  ) {}
 
   public function getId(): ?int
   {
     return $this->id;
   }
-
-  public function setId(?int $id): void
+  public function setId(int $id): void
   {
     $this->id = $id;
+  }
+
+  public function getWalletId(): int
+  {
+    return $this->walletId;
+  }
+  public function getAssetId(): int
+  {
+    return $this->assetId;
   }
 
   public function getTipo(): string
   {
     return $this->tipo;
   }
-
-  public function setTipo(string $tipo): void
-  {
-    $this->tipo = $tipo;
-  }
-
-  public function getQuantidade(): int
+  public function getQuantidade(): float
   {
     return $this->quantidade;
   }
-
-  public function setQuantidade(int $quantidade): void
+  public function getPrecoUnitario(): float
   {
-    $this->quantidade = $quantidade;
+    return $this->precoUnitario;
   }
-
-  public function getValor(): float
+  public function getValorTotal(): float
   {
-    return $this->valor;
+    return $this->quantidade * $this->precoUnitario;
   }
-
-  public function setValor(float $valor): void
-  {
-    $this->valor = $valor;
-  }
-
   public function getData(): DateTime
   {
     return $this->data;
   }
 
-  public function setData(DateTime $data): void
-  {
-    $this->data = $data;
-  }
   public function jsonSerialize(): mixed
   {
     return [
-      'id'         => $this->id,
-      'tipo'       => $this->tipo,
-      'quantidade' => $this->quantidade,
-      'valor'      => $this->valor,
-      'data'       => $this->data->format('Y-m-d'),
+      'id'             => $this->id,
+      'wallet_id'      => $this->walletId,
+      'asset_id'       => $this->assetId,
+      'tipo'           => $this->tipo,
+      'quantidade'     => $this->quantidade,
+      'preco_unitario' => $this->precoUnitario,
+      'valor_total'    => $this->getValorTotal(),
+      'data'           => $this->data->format('Y-m-d'),
     ];
   }
 }

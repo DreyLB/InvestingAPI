@@ -3,20 +3,23 @@
 
 namespace App\Application\Services;
 
+use App\Domain\Entities\Ativo;
 use App\Domain\Entities\Transacao;
 use App\Domain\Repositories\TransacaoRepositoryInterface;
-use App\Infrastructure\Persistence\AtivoRepository;
+use App\Domain\Repositories\AtivoRepositoryInterface;
 use App\Infrastructure\Persistence\CarteiraRepository;
 use DateTime;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TransacaoService
 {
   public function __construct(
     private TransacaoRepositoryInterface $transacaoRepository,
-    private AtivoRepository $ativoRepository,
-    private CarteiraRepository $carteiraRepository
+    private AtivoRepositoryInterface $AtivoRepository,
+    private CarteiraRepository $carteiraRepository,
+    private PositionService $positionService
   ) {}
 
   private function validarPropriedadeCarteira(int $carteiraId): void
@@ -27,149 +30,86 @@ class TransacaoService
     }
   }
 
-  private function validarPropriedadeAtivo(int $ativoId, int $carteiraId): void
+  public function listarPorCarteira(int $walletId): array
   {
-    if (!$this->ativoRepository->findByIdAndCarteira($ativoId, $carteiraId)) {
-      throw new ModelNotFoundException('Ativo não encontrado nesta carteira.');
-    }
+    $this->validarPropriedadeCarteira($walletId);
+    return $this->transacaoRepository->listarPorCarteira($walletId);
   }
 
-  public function listarPorCarteira(int $carteiraId): array
+  public function listarPorAtivo(int $walletId, int $AtivoId): array
   {
-    $this->validarPropriedadeCarteira($carteiraId);
-    return $this->transacaoRepository->listarPorCarteira($carteiraId);
+    $this->validarPropriedadeCarteira($walletId);
+    return $this->transacaoRepository->listarPorAsset($walletId, $AtivoId);
   }
 
-  public function listarPorAtivo(int $carteiraId, int $ativoId): array
+  // Endpoint principal: compra (cria Ativo global se não existir)
+  public function comprar(int $walletId, array $dados): array
   {
-    $this->validarPropriedadeCarteira($carteiraId);
-    $this->validarPropriedadeAtivo($ativoId, $carteiraId);
-    return $this->transacaoRepository->listarPorAtivo($ativoId);
-  }
+    $this->validarPropriedadeCarteira($walletId);
 
-  public function criar(int $carteiraId, int $ativoId, array $dados): Transacao
-  {
-    $this->validarPropriedadeCarteira($carteiraId);
-    $this->validarPropriedadeAtivo($ativoId, $carteiraId);
+    return DB::transaction(function () use ($walletId, $dados) {
+      // Busca ou cria o Ativo no catálogo global
+      $Ativo = $this->AtivoRepository->findByTicker($dados['ticker']);
 
-    $valorTotal = (float) $dados['valor'] * (float) $dados['quantidade']; // 👈
-
-    $transacao = new Transacao(
-      null,
-      $dados['tipo'],
-      (float) $dados['quantidade'],
-      $valorTotal,
-      new DateTime($dados['data'])
-    );
-
-    $this->transacaoRepository->save($transacao, $ativoId);
-    $this->atualizarAtivo($ativoId, $carteiraId, $dados);
-
-    return $transacao;
-  }
-
-  private function atualizarAtivo(int $ativoId, int $carteiraId, array $dados): void
-  {
-    $ativo = $this->ativoRepository->findByIdAndCarteira($ativoId, $carteiraId);
-
-    if (!$ativo) return;
-
-    $tipo         = $dados['tipo'];
-    $qtdTransacao = (float) $dados['quantidade'];
-    $valorUnitario = (float) $dados['valor'] / (float) $dados['quantidade'];
-
-    if ($tipo === 'compra') {
-      // Recalcula preço médio ponderado
-      $totalAtual  = $ativo->getQuantidade() * $ativo->getPrecoMedio();
-      $totalNovo   = $qtdTransacao * $valorUnitario;
-      $qtdTotal    = $ativo->getQuantidade() + $qtdTransacao;
-
-      $novoPrecoMedio = $qtdTotal > 0
-        ? ($totalAtual + $totalNovo) / $qtdTotal
-        : $valorUnitario;
-
-      $ativo->setQuantidade($qtdTotal);
-      $ativo->setPrecoMedio($novoPrecoMedio);
-    } elseif ($tipo === 'venda') {
-      $novaQtd = $ativo->getQuantidade() - $qtdTransacao;
-
-      if ($novaQtd < 0) {
-        throw new \InvalidArgumentException(
-          'Quantidade vendida maior do que a quantidade disponível.'
+      if (!$Ativo) {
+        $Ativo = new Ativo(
+          null,
+          strtoupper($dados['ticker']),
+          $dados['nome'] ?? strtoupper($dados['ticker']),
+          (int) $dados['Ativo_type_id'],
+          isset($dados['category_id']) ? (int) $dados['category_id'] : null,
+          new DateTime(),
+          new DateTime()
         );
+        $this->AtivoRepository->save($Ativo);
       }
 
-      $ativo->setQuantidade($novaQtd);
-      // Preço médio não muda na venda
-    }
-
-    $ativo->setUpdatedAt(new DateTime());
-    $this->ativoRepository->save($ativo);
-  }
-
-  public function comprar(int $carteiraId, array $dados): array
-  {
-    $this->validarPropriedadeCarteira($carteiraId);
-
-    $precoUnitario = (float) $dados['valor'];
-    $quantidade    = (float) $dados['quantidade'];
-    $valorTotal    = $precoUnitario * $quantidade; // 👈 valor total = preço × qtd
-
-    $ativo = $this->ativoRepository->findByNomeAndCarteira(
-      $dados['nome'],
-      $carteiraId
-    );
-
-    if ($ativo) {
-      // Ativo já existe — recalcula preço médio ponderado
-      $totalAtual = $ativo->getQuantidade() * $ativo->getPrecoMedio();
-      $totalNovo  = $quantidade * $precoUnitario;
-      $qtdTotal   = $ativo->getQuantidade() + $quantidade;
-
-      $ativo->setQuantidade($qtdTotal);
-      $ativo->setPrecoMedio(($totalAtual + $totalNovo) / $qtdTotal);
-      $ativo->setPreco($precoUnitario);
-      $ativo->setUpdatedAt(new DateTime());
-
-      $this->ativoRepository->save($ativo);
-    } else {
-      // Ativo não existe — cria novo
-      $ativo = new \App\Domain\Entities\Ativo(
-        0,
-        $carteiraId,
-        $dados['category_id'] ?? null,
-        $dados['nome'],
-        (int) $dados['asset_type_id'],
-        $quantidade,
-        $precoUnitario,
-        $precoUnitario, // preço médio inicial = preço unitário da compra
-        new DateTime(),
-        new DateTime()
+      $transacao = new Transacao(
+        null,
+        $walletId,
+        $Ativo->getId(),
+        'compra',
+        (float) $dados['quantidade'],
+        (float) $dados['preco_unitario'],
+        new DateTime($dados['data'])
       );
 
-      $this->ativoRepository->save($ativo);
-    }
+      $this->transacaoRepository->save($transacao);
+      $this->positionService->processar($transacao); // 👈 atualiza position
 
-    // Registra transação com valor total
-    $transacao = new \App\Domain\Entities\Transacao(
-      null,
-      'compra',
-      $quantidade,
-      $valorTotal,
-      new DateTime($dados['data'])
-    );
-
-    $this->transacaoRepository->save($transacao, $ativo->getId());
-
-    return [
-      'ativo'     => $ativo,
-      'transacao' => $transacao,
-    ];
+      return [
+        'transacao' => $transacao,
+        'Ativo'     => $Ativo,
+      ];
+    });
   }
 
-  public function remover(int $carteiraId, int $id): void
+  public function vender(int $walletId, int $AtivoId, array $dados): Transacao
   {
-    $this->validarPropriedadeCarteira($carteiraId);
+    $this->validarPropriedadeCarteira($walletId);
+
+    return DB::transaction(function () use ($walletId, $AtivoId, $dados) {
+      $transacao = new Transacao(
+        null,
+        $walletId,
+        $AtivoId,
+        'venda',
+        (float) $dados['quantidade'],
+        (float) $dados['preco_unitario'],
+        new DateTime($dados['data'])
+      );
+
+      // positionService valida quantidade disponível antes de salvar
+      $this->positionService->processar($transacao);
+      $this->transacaoRepository->save($transacao);
+
+      return $transacao;
+    });
+  }
+
+  public function remover(int $walletId, int $id): void
+  {
+    $this->validarPropriedadeCarteira($walletId);
 
     $transacao = $this->transacaoRepository->findById($id);
     if (!$transacao) {

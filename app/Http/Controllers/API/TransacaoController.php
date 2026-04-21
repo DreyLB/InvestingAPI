@@ -5,8 +5,8 @@ namespace App\Http\Controllers\API;
 
 use App\Application\Services\TransacaoService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\TransacaoRequest;
 use App\Http\Requests\TransacaoCompraRequest;
+use App\Http\Requests\TransacaoVendaRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 
@@ -15,7 +15,7 @@ class TransacaoController extends Controller
   public function __construct(private TransacaoService $service) {}
 
   // GET /carteiras/{carteiraId}/transacoes
-  public function porCarteira(int $carteiraId): JsonResponse
+  public function index(int $carteiraId): JsonResponse
   {
     try {
       return response()->json(
@@ -23,39 +23,6 @@ class TransacaoController extends Controller
       );
     } catch (ModelNotFoundException $e) {
       return response()->json(['message' => $e->getMessage()], 404);
-    }
-  }
-
-  // GET /carteiras/{carteiraId}/ativos/{ativoId}/transacoes
-  public function index(int $carteiraId, int $ativoId): JsonResponse
-  {
-    try {
-      return response()->json(
-        $this->service->listarPorAtivo($carteiraId, $ativoId)
-      );
-    } catch (ModelNotFoundException $e) {
-      return response()->json(['message' => $e->getMessage()], 404);
-    }
-  }
-
-  // POST /carteiras/{carteiraId}/ativos/{ativoId}/transacoes
-  public function store(TransacaoRequest $request, int $carteiraId, int $ativoId): JsonResponse
-  {
-    try {
-      $transacao = $this->service->criar(
-        $carteiraId,
-        $ativoId,
-        $request->validated()
-      );
-
-      return response()->json([
-        'message' => 'Transação registrada com sucesso!',
-        'data'    => $transacao,
-      ], 201);
-    } catch (ModelNotFoundException $e) {
-      return response()->json(['message' => $e->getMessage()], 404);
-    } catch (\InvalidArgumentException $e) {
-      return response()->json(['message' => $e->getMessage()], 400);
     }
   }
 
@@ -67,8 +34,29 @@ class TransacaoController extends Controller
 
       return response()->json([
         'message'   => 'Compra registrada com sucesso!',
-        'ativo'     => $resultado['ativo'],
         'transacao' => $resultado['transacao'],
+        'ativo'     => $resultado['Ativo'],
+      ], 201);
+    } catch (ModelNotFoundException $e) {
+      return response()->json(['message' => $e->getMessage()], 404);
+    } catch (\InvalidArgumentException $e) {
+      return response()->json(['message' => $e->getMessage()], 400);
+    }
+  }
+
+  // POST /carteiras/{carteiraId}/vender
+  public function vender(TransacaoVendaRequest $request, int $carteiraId): JsonResponse
+  {
+    try {
+      $transacao = $this->service->vender(
+        $carteiraId,
+        (int) $request->validated()['asset_id'],
+        $request->validated()
+      );
+
+      return response()->json([
+        'message'   => 'Venda registrada com sucesso!',
+        'transacao' => $transacao,
       ], 201);
     } catch (ModelNotFoundException $e) {
       return response()->json(['message' => $e->getMessage()], 404);

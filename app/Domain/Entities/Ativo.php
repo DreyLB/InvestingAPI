@@ -7,148 +7,78 @@ use DateTime;
 
 class Ativo implements JsonSerializable
 {
-  private ?int $id;
-  private int $tipo_id;
-  private int $carteira_id;
-  private ?int $categoria_id;
-  private string $nome;
-  private float $quantidade;
-  private float $preco;
-  private float $preco_medio;
-  private DateTime $created_at;
-  private DateTime $updated_at;
-
   public function __construct(
-    ?int $id,
-    int $carteira_id,
-    ?int $categoria_id,
-    string $nome,
-    int $tipo_id,
-    float $quantidade,
-    float $preco,
-    float $preco_medio,
-    DateTime $created_at,
-    DateTime $updated_at
-  ) {
-    $this->id = $id;
-    $this->carteira_id = $carteira_id;
-    $this->categoria_id = $categoria_id;
-    $this->nome = $nome;
-    $this->quantidade = $quantidade;
-    $this->preco = $preco;
-    $this->preco_medio = $preco_medio;
-    $this->created_at = $created_at;
-    $this->updated_at = $updated_at;
-    $this->tipo_id = $tipo_id;
-  }
+    private ?int $id,
+    private string $ticker,
+    private string $nome,
+    private int $assetTypeId,
+    private ?int $categoriaId,
+    private DateTime $createdAt,
+    private DateTime $updatedAt
+  ) {}
 
-  // --- Getters ---
-  public function getId(): int
+  public function getId(): ?int
   {
     return $this->id;
   }
-  public function getCarteiraId(): int
-  {
-    return $this->carteira_id;
-  }
-  public function getCategoriaId(): ?int
-  {
-    return $this->categoria_id;
-  }
-  public function getNome(): string
-  {
-    return $this->nome;
-  }
-  public function getQuantidade(): float
-  {
-    return $this->quantidade;
-  }
-  public function getPreco(): float
-  {
-    return $this->preco;
-  }
-  public function getPrecoMedio(): float
-  {
-    return $this->preco_medio;
-  }
-  public function getCreatedAt(): DateTime
-  {
-    return $this->created_at;
-  }
-  public function getUpdatedAt(): DateTime
-  {
-    return $this->updated_at;
-  }
-  public function getTipoId(): int
-  {
-    return $this->tipo_id;
-  }
-
-  // --- Setters ---
   public function setId(int $id): void
   {
     $this->id = $id;
   }
-  public function setCarteiraId(int $carteira_id): void
+
+  public function getTicker(): string
   {
-    $this->carteira_id = $carteira_id;
+    return $this->ticker;
   }
-  public function setCategoriaId(?int $categoria_id): void
+  public function setTicker(string $ticker): void
   {
-    $this->categoria_id = $categoria_id;
+    $this->ticker = $ticker;
+  }
+
+  public function getNome(): string
+  {
+    return $this->nome;
   }
   public function setNome(string $nome): void
   {
     $this->nome = $nome;
   }
-  public function setQuantidade(float $quantidade): void
+
+  public function getAssetTypeId(): int
   {
-    $this->quantidade = $quantidade;
+    return $this->assetTypeId;
   }
-  public function setPreco(float $preco): void
+  public function setAssetTypeId(int $id): void
   {
-    $this->preco = $preco;
-  }
-  public function setPrecoMedio(float $preco_medio): void
-  {
-    $this->preco_medio = $preco_medio;
-  }
-  public function setUpdatedAt(DateTime $updated_at): void
-  {
-    $this->updated_at = $updated_at;
-  }
-  public function setTipoId(int $tipo_id): void
-  {
-    $this->tipo_id = $tipo_id;
+    $this->assetTypeId = $id;
   }
 
-  // --- Regra de negócio ---
-  public function atualizarPrecoMedio(float $novoPreco, int $novaQuantidade): void
+  public function getCategoriaId(): ?int
   {
-    $totalAtual = $this->preco_medio * $this->quantidade;
-    $totalNovo = $novoPreco * $novaQuantidade;
-    $quantidadeTotal = $this->quantidade + $novaQuantidade;
-
-    if ($quantidadeTotal > 0) {
-      $this->preco_medio = ($totalAtual + $totalNovo) / $quantidadeTotal;
-      $this->quantidade = $quantidadeTotal;
-    }
+    return $this->categoriaId;
+  }
+  public function setCategoriaId(?int $id): void
+  {
+    $this->categoriaId = $id;
   }
 
-  // --- Para debug/json ---
+  public function getCreatedAt(): DateTime
+  {
+    return $this->createdAt;
+  }
+  public function getUpdatedAt(): DateTime
+  {
+    return $this->updatedAt;
+  }
+
   public function jsonSerialize(): mixed
   {
     return [
-      'id' => $this->id,
-      'carteira_id' => $this->carteira_id,
-      'tipo_id' => $this->tipo_id,
-      'categoria_id' => $this->categoria_id,
-      'nome' => $this->nome,
-      'quantidade' => $this->quantidade,
-      'preco' => $this->preco,
-      'preco_medio' => $this->preco_medio,
-      'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-      'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+      'id'            => $this->id,
+      'ticker'        => $this->ticker,
+      'nome'          => $this->nome,
+      'asset_type_id' => $this->assetTypeId,
+      'categoria_id'  => $this->categoriaId,
     ];
   }
 }

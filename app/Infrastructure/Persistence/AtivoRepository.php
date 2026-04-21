@@ -1,4 +1,5 @@
 <?php
+// app/Infrastructure/Persistence/AssetRepository.php
 
 namespace App\Infrastructure\Persistence;
 
@@ -6,100 +7,72 @@ use App\Domain\Entities\Ativo;
 use App\Domain\Repositories\AtivoRepositoryInterface;
 use App\Infrastructure\Persistence\Models\AtivoModel;
 use DateTime;
-use Illuminate\Support\Facades\Auth;
 
 class AtivoRepository implements AtivoRepositoryInterface
 {
-  public function save(Ativo $ativo): void
+  public function findById(int $id): ?Ativo
   {
-    $model = $ativo->getId()
-      ? AtivoModel::where('id', $ativo->getId())
-      ->where('wallet_id', $ativo->getCarteiraId())
-      ->firstOrFail()
+    $model = AtivoModel::with(['assetType', 'category'])->find($id);
+    return $model ? $this->toEntity($model) : null;
+  }
+
+  public function findByTicker(string $ticker): ?Ativo
+  {
+    $model = AtivoModel::with(['assetType', 'category'])
+      ->where('ticker', strtoupper($ticker))
+      ->first();
+    return $model ? $this->toEntity($model) : null;
+  }
+
+  public function listarTodos(): array
+  {
+    return AtivoModel::with(['assetType', 'category'])
+      ->orderBy('ticker')
+      ->get()
+      ->map(fn($m) => $this->toArray($m))
+      ->toArray();
+  }
+
+  public function save(Ativo $asset): void
+  {
+    $model = $asset->getId()
+      ? AtivoModel::findOrFail($asset->getId())
       : new AtivoModel();
 
-    if (!$ativo->getId()) {
-      $model->wallet_id = $ativo->getCarteiraId();
-    }
-
-    $model->category_id   = $ativo->getCategoriaId();
-    $model->asset_type_id = $ativo->getTipoId();
-    $model->name          = $ativo->getNome();
-    $model->quantity      = $ativo->getQuantidade();
-    $model->price         = $ativo->getPreco();
-    $model->average_price = $ativo->getPrecoMedio();
+    $model->ticker        = strtoupper($asset->getTicker());
+    $model->name          = $asset->getNome();
+    $model->asset_type_id = $asset->getAssetTypeId();
+    $model->category_id   = $asset->getCategoriaId();
     $model->save();
 
-    if (!$ativo->getId()) {
-      $ativo->setId($model->id);
+    if (!$asset->getId()) {
+      $asset->setId($model->id);
     }
   }
 
-  public function listarPorCarteira(int $carteiraId): array
+  private function toArray(AtivoModel $model): array
   {
-    $models = AtivoModel::with('assetType')
-      ->where('wallet_id', $carteiraId)
-      ->get();
-
-    return $models->map(fn($m) => $this->toArray($m))->toArray();
-  }
-
-  public function findByIdAndCarteira(int $id, int $carteiraId): ?Ativo
-  {
-    $model = AtivoModel::with('assetType')
-      ->where('id', $id)
-      ->where('wallet_id', $carteiraId)
-      ->first();
-
-    return $model ? $this->toEntity($model) : null;
-  }
-
-  public function findByNomeAndCarteira(string $nome, int $carteiraId): ?Ativo
-  {
-    $model = AtivoModel::where('name', $nome)
-      ->where('wallet_id', $carteiraId)
-      ->first();
-
-    return $model ? $this->toEntity($model) : null;
-  }
-
-  public function delete(int $id, int $carteiraId): void
-  {
-    AtivoModel::where('id', $id)
-      ->where('wallet_id', $carteiraId)
-      ->delete();
+    return [
+      'id'            => $model->id,
+      'ticker'        => $model->ticker,
+      'nome'          => $model->name,
+      'asset_type_id' => $model->asset_type_id,
+      'tipo_nome'     => $model->assetType?->nome,
+      'category_id'   => $model->category_id,
+      'categoria_nome' => $model->category?->nome,
+    ];
   }
 
   private function toEntity(AtivoModel $model): Ativo
   {
     return new Ativo(
       (int) $model->id,
-      (int) $model->wallet_id,
+      $model->ticker,
+      $model->name,
+      (int) $model->asset_type_id,
       $model->category_id ? (int) $model->category_id : null,
-      (string) $model->name,
-      (int) $model->asset_type_id,             // <- tipo_id no domínio
-      (float) $model->quantity,
-      (float) $model->price,
-      (float) $model->average_price,
       new DateTime($model->created_at),
       new DateTime($model->updated_at)
     );
-  }
-
-  private function toArray(AtivoModel $model): array
-  {
-    return [
-      'id'              =>  $model->id,
-      'carteira_id'     =>  $model->wallet_id,
-      'categoria_id'    =>  $model->category_id,
-      'tipo_id'         =>  $model->asset_type_id,
-      'tipo_nome'       =>  $model->assetType?->nome,
-      'nome'            =>  $model->name,
-      'quantidade'      =>  (float) $model->quantity,
-      'preco'           =>  (float) $model->price,
-      'preco_medio'     =>  (float) $model->average_price,
-      'created_at'      =>  $model->created_at,
-      'updated_at'      =>  $model->updated_at,
-    ];
   }
 }

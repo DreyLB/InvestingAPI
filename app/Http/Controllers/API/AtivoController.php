@@ -1,89 +1,33 @@
 <?php
+// app/Http/Controllers/API/AtivoController.php
 
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Application\Services\AtivoService;
-use Illuminate\Http\Request;
+use App\Domain\Repositories\AtivoRepositoryInterface;
 use Illuminate\Http\JsonResponse;
-use \Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
 
 class AtivoController extends Controller
 {
-    public function __construct(private AtivoService $service)
-    {
-        $this->middleware('auth:api');
-    }
+    public function __construct(
+        private AtivoRepositoryInterface $ativoRepository
+    ) {}
 
-    public function index(int $carteiraId): JsonResponse
+    // GET /ativos
+    // GET /ativos?ticker=PETR4
+    public function index(Request $request): JsonResponse
     {
-        try {
-            $ativos = $this->service->listarAtivos($carteiraId);
-            return response()->json($ativos);
-        } catch (QueryException $e) {
-            throw $e; // outros erros relançam exceção
-        }
-    }
+        if ($request->has('ticker')) {
+            $ativo = $this->ativoRepository->findByTicker($request->query('ticker'));
 
-    public function show(int $carteiraId, int $id): JsonResponse
-    {
-        try {
-            $ativo = $this->service->buscarAtivo($carteiraId, $id);
-            return response()->json($ativo);
-        } catch (QueryException $e) {
-            throw $e;
-        }
-    }
-
-    public function store(Request $request, int $carteiraId): JsonResponse
-    {
-        try {
-            $dados = $request->validate([
-                'category_id'    => 'nullable|exists:categories,id',
-                'asset_type_id'  => 'required|exists:asset_types,id',
-                'name'           => 'required|string|max:255',
-                'quantity'       => 'required|numeric|min:0',
-                'price'          => 'required|numeric|min:0',
-                'average_price'  => 'required|numeric|min:0',
-            ]);
-            $ativo = $this->service->criarAtivo($carteiraId, $dados);
-            return response()->json($ativo, 201);
-        } catch (QueryException $e) {
-            if ($e->getCode() === '23000') { // Violação de constraint
-                return response()->json([
-                    'error' => 'Já existe um ativo com este nome nesta carteira.'
-                ], 422);
+            if (!$ativo) {
+                return response()->json(['message' => 'Ativo não encontrado.'], 404);
             }
-            throw $e; // outros erros relançam exceção
-        }
-    }
 
-    public function update(Request $request, int $carteiraId, int $id): JsonResponse
-    {
-        try {
-            $dados = $request->validate([
-                'category_id'    => 'nullable|exists:categories,id',
-                'asset_type_id'  => 'sometimes|exists:asset_types,id',
-                'name'           => 'sometimes|string|max:255',
-                'quantity'       => 'sometimes|numeric|min:0',
-                'price'          => 'sometimes|numeric|min:0',
-                'average_price'  => 'sometimes|numeric|min:0',
-            ]);
-
-            $ativo = $this->service->atualizarAtivo($carteiraId, $id, $dados);
             return response()->json($ativo);
-        } catch (QueryException $e) {
-            throw $e; // outros erros relançam exceção
         }
-    }
 
-    public function destroy(int $carteiraId, int $id): JsonResponse
-    {
-        try {
-            $this->service->removerAtivo($carteiraId, $id);
-            return response()->json(['message' => 'Ativo removido com sucesso.']);
-        } catch (QueryException $e) {
-            throw $e; // outros erros relançam exceção
-        }
+        return response()->json($this->ativoRepository->listarTodos());
     }
 }

@@ -15,6 +15,11 @@ use App\Domain\Repositories\TransacaoRepositoryInterface;
 use App\Infrastructure\Persistence\TransacaoRepository;
 use App\Domain\Repositories\DividendoRepositoryInterface;
 use App\Infrastructure\Persistence\DividendoRepository;
+use App\Domain\Repositories\AtivoRepositoryInterface;
+use App\Infrastructure\Persistence\AtivoRepository;
+use App\Domain\Repositories\PositionRepositoryInterface;
+use App\Infrastructure\Persistence\PositionRepository;
+
 
 
 class AppServiceProvider extends ServiceProvider
@@ -52,5 +57,22 @@ class AppServiceProvider extends ServiceProvider
             \App\Domain\Repositories\AlertaRepositoryInterface::class,
             \App\Infrastructure\Persistence\AlertaRepository::class,
         );
+        $this->app->bind(
+            \App\Domain\Repositories\AtivoRepositoryInterface::class,
+            \App\Infrastructure\Persistence\AtivoRepository::class,
+        );
+
+        $this->app->bind(
+            \App\Domain\Repositories\PositionRepositoryInterface::class,
+            \App\Infrastructure\Persistence\PositionRepository::class,
+        );
+
+        $this->app->bind(
+            \App\Domain\Repositories\TransacaoRepositoryInterface::class,
+            \App\Infrastructure\Persistence\TransacaoRepository::class,
+        );
+        $this->app->bind(AtivoRepositoryInterface::class, AtivoRepository::class);
+        $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
+        $this->app->bind(TransacaoRepositoryInterface::class, TransacaoRepository::class);
     }
 }

@@ -1,11 +1,11 @@
 <?php
-// app/Http/Requests/TransacaoCompraRequest.php
+// app/Http/Requests/TransacaoVendaRequest.php
 
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class TransacaoCompraRequest extends FormRequest
+class TransacaoVendaRequest extends FormRequest
 {
   public function authorize(): bool
   {
@@ -15,10 +15,7 @@ class TransacaoCompraRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'ticker'        => 'required|string|max:20',
-      'nome'          => 'nullable|string|max:255',
-      'asset_type_id' => 'required|exists:asset_types,id',
-      'category_id'   => 'nullable|exists:categories,id',
+      'asset_id'      => 'required|exists:assets,id',
       'quantidade'    => 'required|numeric|min:0.00000001',
       'preco_unitario' => 'required|numeric|min:0',
       'data'          => 'required|date',
