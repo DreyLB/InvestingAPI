@@ -43,31 +43,23 @@ class TransacaoService
   }
 
   // Endpoint principal: compra (cria Ativo global se não existir)
+  // Endpoint principal: compra (busca Ativo por asset_id)
   public function comprar(int $walletId, array $dados): array
   {
     $this->validarPropriedadeCarteira($walletId);
 
     return DB::transaction(function () use ($walletId, $dados) {
-      // Busca ou cria o Ativo no catálogo global
-      $Ativo = $this->AtivoRepository->findByTicker($dados['ticker']);
+      // Busca o ativo pelo ID (já cadastrado no banco)
+      $ativo = $this->AtivoRepository->findById((int) $dados['asset_id']);
 
-      if (!$Ativo) {
-        $Ativo = new Ativo(
-          null,
-          strtoupper($dados['ticker']),
-          $dados['nome'] ?? strtoupper($dados['ticker']),
-          (int) $dados['Ativo_type_id'],
-          isset($dados['category_id']) ? (int) $dados['category_id'] : null,
-          new DateTime(),
-          new DateTime()
-        );
-        $this->AtivoRepository->save($Ativo);
+      if (!$ativo) {
+        throw new ModelNotFoundException('Ativo não encontrado.');
       }
 
       $transacao = new Transacao(
         null,
         $walletId,
-        $Ativo->getId(),
+        $ativo->getId(),
         'compra',
         (float) $dados['quantidade'],
         (float) $dados['preco_unitario'],
@@ -75,20 +67,21 @@ class TransacaoService
       );
 
       $this->transacaoRepository->save($transacao);
-      $this->positionService->processar($transacao); // 👈 atualiza position
+      $this->positionService->processar($transacao);
 
       return [
         'transacao' => $transacao,
-        'Ativo'     => $Ativo,
+        'ativo'     => $ativo,
       ];
     });
   }
 
-  public function vender(int $walletId, int $AtivoId, array $dados): Transacao
+  public function vender(int $walletId, int $AtivoId, array $dados): array
   {
     $this->validarPropriedadeCarteira($walletId);
 
     return DB::transaction(function () use ($walletId, $AtivoId, $dados) {
+      $ativo = $this->AtivoRepository->findById((int) $AtivoId);
       $transacao = new Transacao(
         null,
         $walletId,
@@ -103,7 +96,10 @@ class TransacaoService
       $this->positionService->processar($transacao);
       $this->transacaoRepository->save($transacao);
 
-      return $transacao;
+      return [
+        'transacao' => $transacao,
+        'ativo'     => $ativo,
+      ];
     });
   }
 

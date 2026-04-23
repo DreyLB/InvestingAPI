@@ -35,7 +35,7 @@ class TransacaoController extends Controller
       return response()->json([
         'message'   => 'Compra registrada com sucesso!',
         'transacao' => $resultado['transacao'],
-        'ativo'     => $resultado['Ativo'],
+        'ativo'     => $resultado['ativo'],
       ], 201);
     } catch (ModelNotFoundException $e) {
       return response()->json(['message' => $e->getMessage()], 404);
@@ -56,7 +56,8 @@ class TransacaoController extends Controller
 
       return response()->json([
         'message'   => 'Venda registrada com sucesso!',
-        'transacao' => $transacao,
+        'transacao' => $transacao['transacao'],
+        'ativo'     => $transacao['ativo'],
       ], 201);
     } catch (ModelNotFoundException $e) {
       return response()->json(['message' => $e->getMessage()], 404);

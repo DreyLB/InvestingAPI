@@ -15,13 +15,10 @@ class TransacaoCompraRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'ticker'        => 'required|string|max:20',
-      'nome'          => 'nullable|string|max:255',
-      'asset_type_id' => 'required|exists:asset_types,id',
-      'category_id'   => 'nullable|exists:categories,id',
-      'quantidade'    => 'required|numeric|min:0.00000001',
+      'asset_id'       => 'required|exists:assets,id',
+      'quantidade'     => 'required|numeric|min:0.00000001',
       'preco_unitario' => 'required|numeric|min:0',
-      'data'          => 'required|date',
+      'data'           => 'required|date',
     ];
   }
 }
