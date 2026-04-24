@@ -16,12 +16,13 @@ class AtivoRepository implements AtivoRepositoryInterface
     return $model ? $this->toEntity($model) : null;
   }
 
-  public function findByTicker(string $ticker): ?Ativo
+  public function findByTicker(string $ticker): array
   {
     $model = AtivoModel::with(['assetType', 'category'])
-      ->where('ticker', strtoupper($ticker))
-      ->first();
-    return $model ? $this->toEntity($model) : null;
+      ->where('ticker', 'LIKE', strtoupper("%$ticker%"))
+      ->get();
+
+    return $model->map(fn($m) => $this->toEntity($m))->toArray();
   }
 
   public function listarTodos(): array
