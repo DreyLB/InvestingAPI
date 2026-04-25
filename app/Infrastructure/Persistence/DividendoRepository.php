@@ -5,6 +5,7 @@ namespace App\Infrastructure\Persistence;
 use App\Domain\Entities\Dividendo;
 use App\Domain\Repositories\DividendoRepositoryInterface;
 use App\Infrastructure\Persistence\Models\DividendoModel;
+use App\Infrastructure\Persistence\Models\PositionModel;
 use DateTime;
 
 class DividendoRepository implements DividendoRepositoryInterface
@@ -12,6 +13,7 @@ class DividendoRepository implements DividendoRepositoryInterface
   public function listarPorAtivo(int $ativoId): array
   {
     return DividendoModel::where('asset_id', $ativoId)
+      ->with('ativo:id,ticker,name')
       ->orderBy('data', 'desc')
       ->get()
       ->map(fn($m) => $this->toArray($m))
@@ -20,12 +22,11 @@ class DividendoRepository implements DividendoRepositoryInterface
 
   public function listarPorCarteira(int $carteiraId): array
   {
-    return DividendoModel::whereHas(
-      'ativo',
-      fn($q) =>
-      $q->where('wallet_id', $carteiraId)
-    )
-      ->with('ativo:id,name,wallet_id')
+    $assetIds = PositionModel::where('wallet_id', $carteiraId)
+      ->pluck('asset_id');
+
+    return DividendoModel::whereIn('asset_id', $assetIds)
+      ->with('ativo:id,ticker,name')
       ->orderBy('data', 'desc')
       ->get()
       ->map(fn($m) => $this->toArray($m))
@@ -62,13 +63,14 @@ class DividendoRepository implements DividendoRepositoryInterface
   private function toArray(DividendoModel $model): array
   {
     return [
-      'id'         => $model->id,
-      'asset_id'   => $model->asset_id,
-      'ativo_nome' => $model->ativo?->name,
-      'valor'      => $model->valor,
-      'data'       => $model->data,
-      'created_at' => $model->created_at,
-      'updated_at' => $model->updated_at,
+      'id'          => $model->id,
+      'asset_id'    => $model->asset_id,
+      'ticker'      => $model->ativo?->ticker,
+      'ativo_nome'  => $model->ativo?->name,
+      'valor'       => $model->valor,
+      'data'        => $model->data,
+      'created_at'  => $model->created_at,
+      'updated_at'  => $model->updated_at,
     ];
   }
 

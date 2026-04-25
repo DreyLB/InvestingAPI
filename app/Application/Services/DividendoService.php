@@ -4,8 +4,9 @@ namespace App\Application\Services;
 
 use App\Domain\Entities\Dividendo;
 use App\Domain\Repositories\DividendoRepositoryInterface;
-use App\Infrastructure\Persistence\AtivoRepository;
+use App\Domain\Repositories\AtivoRepositoryInterface;
 use App\Infrastructure\Persistence\CarteiraRepository;
+use App\Infrastructure\Persistence\PositionRepository;
 use DateTime;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
@@ -14,21 +15,24 @@ class DividendoService
 {
   public function __construct(
     private DividendoRepositoryInterface $dividendoRepository,
-    private AtivoRepository $ativoRepository,
-    private CarteiraRepository $carteiraRepository
+    private AtivoRepositoryInterface $ativoRepository,
+    private CarteiraRepository $carteiraRepository,
+    private PositionRepository $positionRepository
   ) {}
 
   private function validarPropriedadeCarteira(int $carteiraId): void
   {
     $userId = (int) Auth::id();
     if (!$this->carteiraRepository->findByIdAndUserId($carteiraId, $userId)) {
-      throw new ModelNotFoundException('Carteira não encontrada ou não pertence ao usuário.');
+      throw new ModelNotFoundException('Carteira não encontrada.');
     }
   }
 
-  private function validarPropriedadeAtivo(int $ativoId, int $carteiraId): void
+  // Valida se o ativo existe na carteira via positions (nova arquitetura)
+  private function validarAtivoNaCarteira(int $ativoId, int $carteiraId): void
   {
-    if (!$this->ativoRepository->findByIdAndCarteira($ativoId, $carteiraId)) {
+    $position = $this->positionRepository->findByWalletAndAsset($carteiraId, $ativoId);
+    if (!$position) {
       throw new ModelNotFoundException('Ativo não encontrado nesta carteira.');
     }
   }
@@ -42,14 +46,20 @@ class DividendoService
   public function listarPorAtivo(int $carteiraId, int $ativoId): array
   {
     $this->validarPropriedadeCarteira($carteiraId);
-    $this->validarPropriedadeAtivo($ativoId, $carteiraId);
+    $this->validarAtivoNaCarteira($ativoId, $carteiraId);
     return $this->dividendoRepository->listarPorAtivo($ativoId);
   }
 
   public function criar(int $carteiraId, int $ativoId, array $dados): Dividendo
   {
     $this->validarPropriedadeCarteira($carteiraId);
-    $this->validarPropriedadeAtivo($ativoId, $carteiraId);
+    $this->validarAtivoNaCarteira($ativoId, $carteiraId);
+
+    // Verifica se o ativo existe no catálogo
+    $ativo = $this->ativoRepository->findById($ativoId);
+    if (!$ativo) {
+      throw new ModelNotFoundException('Ativo não encontrado no catálogo.');
+    }
 
     $dividendo = new Dividendo(
       null,
