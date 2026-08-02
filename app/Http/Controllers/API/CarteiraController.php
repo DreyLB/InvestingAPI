@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Application\Services\CarteiraService;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CarteiraRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 
 class CarteiraController extends Controller
@@ -51,6 +53,21 @@ class CarteiraController extends Controller
     {
         $carteira = $this->carteiraService->buscarCarteira(Auth::id(), (int) $id);
         return response()->json($carteira);
+    }
+
+    public function evolucaoCarteira(int $carteiraId): JsonResponse
+    {
+        try {
+            $userId = (int) Auth::id();
+
+            $this->carteiraService->buscarCarteira($userId, $carteiraId); // valida posse
+
+            $evolucao = $this->carteiraService->calcularEvolucaoCarteira($carteiraId);
+
+            return response()->json($evolucao);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => $e->getMessage()], 404);
+        }
     }
 
     /**

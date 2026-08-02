@@ -30,6 +30,7 @@ Route::middleware('auth:api')->group(function () {
 
   // CARTEIRAS
   Route::apiResource('/carteiras', CarteiraController::class);
+  Route::get('/carteiras/{carteiraId}/evolucao', [CarteiraController::class, 'evolucaoCarteira']);
 
   // POSIÇÕES (portfolio atual)
   Route::get('/carteiras/{carteiraId}/posicoes', [PosicaoController::class, 'index']);

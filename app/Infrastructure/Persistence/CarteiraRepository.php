@@ -5,6 +5,7 @@ namespace App\Infrastructure\Persistence;
 use App\Domain\Entities\Carteira;
 use App\Domain\Repositories\CarteiraRepositoryInterface;
 use App\Infrastructure\Persistence\Models\CarteiraModel;
+use App\Infrastructure\Persistence\Models\TransacaoModel;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -81,5 +82,44 @@ class CarteiraRepository implements CarteiraRepositoryInterface
     if ($model && $model->trashed()) {
       $model->restore();
     }
+  }
+
+  public function calcularEvolucaoCarteira(int $carteiraId): array
+  {
+    $resultados = TransacaoModel::query()
+      ->selectRaw("DATE_FORMAT(`data`, '%Y-%m') as mes_ano")
+      ->selectRaw('SUM(quantidade * preco_unitario) as valor_total')
+      ->where('wallet_id', $carteiraId)
+      ->whereNull('deleted_at')
+      ->groupBy('mes_ano')
+      ->orderByRaw('MIN(`data`) ASC')
+      ->get();
+
+    return $resultados->map(fn($item) => [
+      'month' => $this->formatarMesAno($item->mes_ano) . '/' . substr($item->mes_ano, 2, 2), // "Jan/24"
+      'value' => round((float) $item->valor_total, 2),
+    ])->toArray();
+  }
+
+  private function formatarMesAno(string $mesAno): string
+  {
+    static $meses = [
+      '01' => 'Jan',
+      '02' => 'Fev',
+      '03' => 'Mar',
+      '04' => 'Abr',
+      '05' => 'Mai',
+      '06' => 'Jun',
+      '07' => 'Jul',
+      '08' => 'Ago',
+      '09' => 'Set',
+      '10' => 'Out',
+      '11' => 'Nov',
+      '12' => 'Dez',
+    ];
+
+    [, $mes] = explode('-', $mesAno);
+
+    return $meses[$mes] ?? $mesAno;
   }
 }

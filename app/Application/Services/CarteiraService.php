@@ -95,4 +95,9 @@ class CarteiraService
     }
     return $carteira;
   }
+
+  public function calcularEvolucaoCarteira(int $carteiraId): array
+  {
+    return $this->carteiraRepository->calcularEvolucaoCarteira($carteiraId);
+  }
 }
