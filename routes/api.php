@@ -33,6 +33,7 @@ Route::middleware('auth:api')->group(function () {
 
   // POSIÇÕES (portfolio atual)
   Route::get('/carteiras/{carteiraId}/posicoes', [PosicaoController::class, 'index']);
+  Route::get('/carteiras/{carteiraId}/valorTotal', [PosicaoController::class, 'allValue']);
 
   // TRANSAÇÕES
   Route::get('/carteiras/{carteiraId}/transacoes',        [TransacaoController::class, 'index']);

@@ -18,6 +18,17 @@ class PositionService
     return $this->positionRepository->listarPorCarteira($walletId);
   }
 
+  public function calcularValorTotal(int $walletId): float
+  {
+    $positions = $this->positionRepository->listarPorCarteira($walletId);
+
+    return array_reduce(
+      $positions,
+      fn(float $carry, array $position) => $carry + (float) $position['valor_total'],
+      0.0
+    );
+  }
+
   // Chamado sempre que uma transação é registrada
   public function processar(Transacao $transacao): void
   {

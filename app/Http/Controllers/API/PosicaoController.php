@@ -34,4 +34,21 @@ class PosicaoController extends Controller
       return response()->json(['message' => $e->getMessage()], 404);
     }
   }
+
+  public function allValue(int $carteiraId): JsonResponse
+  {
+    try {
+      $userId = (int) Auth::id();
+
+      if (!$this->carteiraRepository->findByIdAndUserId($carteiraId, $userId)) {
+        return response()->json(['message' => 'Carteira não encontrada.'], 404);
+      }
+
+      $totalValue = $this->positionService->calcularValorTotal($carteiraId);
+
+      return response()->json(['valorTotal' => $totalValue]);
+    } catch (ModelNotFoundException $e) {
+      return response()->json(['message' => $e->getMessage()], 404);
+    }
+  }
 }
