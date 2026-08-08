@@ -93,12 +93,36 @@ class CarteiraRepository implements CarteiraRepositoryInterface
       ->whereNull('deleted_at')
       ->groupBy('mes_ano')
       ->orderByRaw('MIN(`data`) ASC')
-      ->get();
+      ->get()
+      ->keyBy('mes_ano');
 
-    return $resultados->map(fn($item) => [
-      'month' => $this->formatarMesAno($item->mes_ano) . '/' . substr($item->mes_ano, 2, 2), // "Jan/24"
-      'value' => round((float) $item->valor_total, 2),
-    ])->toArray();
+    if ($resultados->isEmpty()) {
+      return [];
+    }
+
+    $primeiroMes = \Carbon\Carbon::createFromFormat('Y-m', $resultados->keys()->first())->startOfMonth();
+    $ultimoMes = \Carbon\Carbon::now()->startOfMonth(); // ou ->keys()->last() se não quiser ir até o mês atual
+
+    $evolucao = [];
+    $acumulado = 0;
+    $cursor = $primeiroMes->copy();
+
+    while ($cursor <= $ultimoMes) {
+      $chave = $cursor->format('Y-m');
+
+      if (isset($resultados[$chave])) {
+        $acumulado += (float) $resultados[$chave]->valor_total;
+      }
+
+      $evolucao[] = [
+        'month' => $this->formatarMesAno($chave),
+        'value' => round($acumulado, 2),
+      ];
+
+      $cursor->addMonth();
+    }
+
+    return $evolucao;
   }
 
   private function formatarMesAno(string $mesAno): string
@@ -118,8 +142,8 @@ class CarteiraRepository implements CarteiraRepositoryInterface
       '12' => 'Dez',
     ];
 
-    [, $mes] = explode('-', $mesAno);
+    [$ano, $mes] = explode('-', $mesAno);
 
-    return $meses[$mes] ?? $mesAno;
+    return $meses[$mes] . '/' . substr($ano, 2, 2);
   }
 }
