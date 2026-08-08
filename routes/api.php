@@ -16,6 +16,7 @@ use App\Http\Controllers\API\RendimentoController;
 // ROTAS PÚBLICAS
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login',    [UserController::class, 'login']);
+Route::post('/refresh', [UserController::class, 'refresh']);
 
 // Catálogo global de ativos — público para autocomplete no frontend
 Route::get('/ativos', [AtivoController::class, 'index']);
@@ -35,6 +36,8 @@ Route::middleware('auth:api')->group(function () {
   // POSIÇÕES (portfolio atual)
   Route::get('/carteiras/{carteiraId}/posicoes', [PosicaoController::class, 'index']);
   Route::get('/carteiras/{carteiraId}/valorTotal', [PosicaoController::class, 'allValue']);
+  Route::get('/carteiras/{carteiraId}/acoes', [PosicaoController::class, 'acoes']);
+  Route::get('/carteiras/{carteiraId}/fiis', [PosicaoController::class, 'fiis']);
 
   // TRANSAÇÕES
   Route::get('/carteiras/{carteiraId}/transacoes',        [TransacaoController::class, 'index']);
