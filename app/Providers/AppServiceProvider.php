@@ -19,11 +19,6 @@ use App\Domain\Repositories\AtivoRepositoryInterface;
 use App\Infrastructure\Persistence\AtivoRepository;
 use App\Domain\Repositories\PositionRepositoryInterface;
 use App\Infrastructure\Persistence\PositionRepository;
-use App\Infrastructure\Providers\BrapiProvider;
-use App\Infrastructure\Providers\CoinGeckoProvider;
-use App\Infrastructure\Providers\MarketDataProviderInterface;
-use App\Domain\Repositories\CotacaoRepositoryInterface;
-use App\Infrastructure\Persistence\EloquentCotacaoRepository;
 
 
 
@@ -76,16 +71,6 @@ class AppServiceProvider extends ServiceProvider
             \App\Domain\Repositories\TransacaoRepositoryInterface::class,
             \App\Infrastructure\Persistence\TransacaoRepository::class,
         );
-
-        $this->app->bind(
-            \App\Domain\Repositories\CotacaoRepositoryInterface::class,
-            \App\Infrastructure\Persistence\EloquentCotacaoRepository::class
-        );
-
-        // Contextual binding: cada provider é resolvido conforme o contexto
-        $this->app->when(\App\Application\Services\CotacaoService::class)
-            ->needs(MarketDataProviderInterface::class)
-            ->give(fn() => new BrapiProvider());
         $this->app->bind(AtivoRepositoryInterface::class, AtivoRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
         $this->app->bind(TransacaoRepositoryInterface::class, TransacaoRepository::class);

@@ -1,5 +1,5 @@
 <?php
-// app/Infrastructure/Persistence/EloquentCotacaoRepository.php
+// app/Infrastructure/Persistence/CotacaoRepository.php
 
 namespace App\Infrastructure\Persistence;
 
@@ -8,7 +8,7 @@ use App\Domain\Repositories\CotacaoRepositoryInterface;
 use App\Infrastructure\Persistence\Models\CotacaoModel;
 use DateTimeImmutable;
 
-class EloquentCotacaoRepository implements CotacaoRepositoryInterface
+class CotacaoRepository implements CotacaoRepositoryInterface
 {
   public function salvar(string $ticker, string $tipo, float $valor, DateTimeImmutable $atualizadoEm): void
   {
