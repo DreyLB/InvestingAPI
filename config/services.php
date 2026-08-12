@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'hgbrasil' => [
+        'key' => env('HGBRASIL_API_KEY'),
+    ],
+
 ];

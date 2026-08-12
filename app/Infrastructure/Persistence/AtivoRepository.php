@@ -25,6 +25,13 @@ class AtivoRepository implements AtivoRepositoryInterface
     return $model->map(fn($m) => $this->toEntity($m))->toArray();
   }
 
+  public function findByTickerExato(string $ticker): ?Ativo
+  {
+    $model = AtivoModel::where('ticker', strtoupper($ticker))->first();
+
+    return $model ? $this->toEntity($model) : null;
+  }
+
   public function listarTodos(): array
   {
     return AtivoModel::with(['assetType', 'category'])
