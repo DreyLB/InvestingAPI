@@ -6,7 +6,7 @@ use App\Domain\Entities\IndicadorMercado;
 
 interface IndicadorMercadoRepositoryInterface
 {
-  public function salvar(string $chave, string $nome, float $valor, \DateTimeImmutable $atualizadoEm): void;
+  public function salvar(string $chave, string $nome, float $valor, ?float $variacaoPercentual, \DateTimeImmutable $atualizadoEm): void;
 
   public function buscarPorChave(string $chave): ?IndicadorMercado;
 

@@ -10,11 +10,11 @@ use DateTimeImmutable;
 
 class IndicadorMercadoRepository implements IndicadorMercadoRepositoryInterface
 {
-  public function salvar(string $chave, string $nome, float $valor, DateTimeImmutable $atualizadoEm): void
+  public function salvar(string $chave, string $nome, float $valor, ?float $variacaoPercentual, DateTimeImmutable $atualizadoEm): void
   {
     IndicadorMercadoModel::updateOrCreate(
       ['chave' => $chave],
-      ['nome' => $nome, 'valor' => $valor, 'atualizado_em' => $atualizadoEm]
+      ['nome' => $nome, 'valor' => $valor, 'variacao_percentual' => $variacaoPercentual, 'atualizado_em' => $atualizadoEm]
     );
   }
 
@@ -38,6 +38,7 @@ class IndicadorMercadoRepository implements IndicadorMercadoRepositoryInterface
       chave: $model->chave,
       nome: $model->nome,
       valor: $model->valor,
+      variacaoPercentual: $model->variacao_percentual,
       atualizadoEm: DateTimeImmutable::createFromMutable($model->atualizado_em),
       id: $model->id,
     );

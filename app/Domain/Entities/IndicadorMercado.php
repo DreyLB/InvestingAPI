@@ -11,6 +11,7 @@ class IndicadorMercado
     private readonly string $chave,
     private readonly string $nome,
     private readonly float $valor,
+    private readonly ?float $variacaoPercentual,
     private readonly DateTimeImmutable $atualizadoEm,
     private readonly ?int $id = null,
   ) {
@@ -37,6 +38,11 @@ class IndicadorMercado
   public function getValor(): float
   {
     return $this->valor;
+  }
+
+  public function getVariacaoPercentual(): ?float
+  {
+    return $this->variacaoPercentual;
   }
 
   public function getAtualizadoEm(): DateTimeImmutable

@@ -12,10 +12,11 @@ class IndicadorMercadoModel extends Model
 
   protected $table = 'indicadores_mercado';
 
-  protected $fillable = ['chave', 'nome', 'valor', 'atualizado_em'];
+  protected $fillable = ['chave', 'nome', 'valor', 'variacao_percentual', 'atualizado_em'];
 
   protected $casts = [
     'valor' => 'float',
+    'variacao_percentual' => 'float',
     'atualizado_em' => 'datetime',
   ];
 }

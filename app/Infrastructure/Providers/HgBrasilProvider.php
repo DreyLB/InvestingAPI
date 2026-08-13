@@ -30,7 +30,7 @@ class HgBrasilProvider implements MarketDataProviderInterface
   }
 
   /**
-   * @return array<string, array{nome: string, valor: float}>
+   * @return array<string, array{nome: string, valor: float, variacaoPercentual: ?float}>
    */
   public function buscarIndicadoresMercado(): array
   {
@@ -45,12 +45,22 @@ class HgBrasilProvider implements MarketDataProviderInterface
 
     $ibovespa = $response['results']['stocks']['IBOVESPA']['points'] ?? null;
     if ($ibovespa !== null) {
-      $resultado['ibovespa'] = ['nome' => 'IBOVESPA', 'valor' => (float) $ibovespa];
+      $variacao = $response['results']['stocks']['IBOVESPA']['variation'] ?? null;
+      $resultado['ibovespa'] = [
+        'nome' => 'IBOVESPA',
+        'valor' => (float) $ibovespa,
+        'variacaoPercentual' => $variacao !== null ? (float) $variacao : null,
+      ];
     }
 
     $bitcoin = $response['results']['currencies']['BTC']['buy'] ?? null;
     if ($bitcoin !== null) {
-      $resultado['bitcoin'] = ['nome' => 'Bitcoin', 'valor' => (float) $bitcoin];
+      $variacao = $response['results']['currencies']['BTC']['variation'] ?? null;
+      $resultado['bitcoin'] = [
+        'nome' => 'Bitcoin',
+        'valor' => (float) $bitcoin,
+        'variacaoPercentual' => $variacao !== null ? (float) $variacao : null,
+      ];
     }
 
     return $resultado;
