@@ -39,4 +39,8 @@ return [
         'key' => env('HGBRASIL_API_KEY'),
     ],
 
+    'brapi' => [
+        'key' => env('BRAPI_API_KEY'),
+    ],
+
 ];

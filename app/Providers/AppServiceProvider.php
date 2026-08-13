@@ -22,6 +22,7 @@ use App\Infrastructure\Persistence\PositionRepository;
 use App\Domain\Repositories\CotacaoRepositoryInterface;
 use App\Infrastructure\Persistence\CotacaoRepository;
 use App\Infrastructure\Providers\HgBrasilProvider;
+use App\Infrastructure\Providers\BrapiProvider;
 
 
 
@@ -81,5 +82,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CotacaoRepositoryInterface::class, CotacaoRepository::class);
 
         $this->app->bind(HgBrasilProvider::class, fn() => new HgBrasilProvider(config('services.hgbrasil.key')));
+
+        $this->app->bind(BrapiProvider::class, fn() => new BrapiProvider(config('services.brapi.key')));
     }
 }

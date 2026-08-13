@@ -1,5 +1,4 @@
 <?php
-// app/Infrastructure/Providers/CoinGeckoProvider.php
 
 namespace App\Infrastructure\Providers;
 
