@@ -28,4 +28,31 @@ class HgBrasilProvider implements MarketDataProviderInterface
 
     return $resultado;
   }
+
+  /**
+   * @return array<string, array{nome: string, valor: float}>
+   */
+  public function buscarIndicadoresMercado(): array
+  {
+    $response = Http::timeout(10)
+      ->get('https://api.hgbrasil.com/finance', [
+        'key' => $this->apiKey,
+      ])
+      ->throw()
+      ->json();
+
+    $resultado = [];
+
+    $ibovespa = $response['results']['stocks']['IBOVESPA']['points'] ?? null;
+    if ($ibovespa !== null) {
+      $resultado['ibovespa'] = ['nome' => 'IBOVESPA', 'valor' => (float) $ibovespa];
+    }
+
+    $bitcoin = $response['results']['currencies']['BTC']['buy'] ?? null;
+    if ($bitcoin !== null) {
+      $resultado['bitcoin'] = ['nome' => 'Bitcoin', 'valor' => (float) $bitcoin];
+    }
+
+    return $resultado;
+  }
 }

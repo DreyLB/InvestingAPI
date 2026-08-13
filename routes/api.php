@@ -12,6 +12,7 @@ use App\Http\Controllers\API\AssetTypeController;
 use App\Http\Controllers\API\AlertaController;
 use App\Http\Controllers\API\MetaController;
 use App\Http\Controllers\API\RendimentoController;
+use App\Http\Controllers\API\IndicadorMercadoController;
 
 // ROTAS PÚBLICAS
 Route::post('/register', [UserController::class, 'register']);
@@ -21,6 +22,9 @@ Route::post('/refresh', [UserController::class, 'refresh']);
 // Catálogo global de ativos — público para autocomplete no frontend
 Route::get('/ativos', [AtivoController::class, 'index']);
 Route::get('/asset-types', [AssetTypeController::class, 'index']);
+
+// Indicadores de mercado (IBOVESPA, Bitcoin) — público para o topo do painel
+Route::get('/indicadores-mercado', [IndicadorMercadoController::class, 'index']);
 
 // ROTAS AUTENTICADAS
 Route::middleware('auth:api')->group(function () {
