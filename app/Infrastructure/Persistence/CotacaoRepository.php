@@ -10,35 +10,39 @@ use DateTimeImmutable;
 
 class CotacaoRepository implements CotacaoRepositoryInterface
 {
-  public function salvar(string $ticker, string $tipo, float $valor, DateTimeImmutable $atualizadoEm): void
+  public function salvar(int $assetId, float $valor, DateTimeImmutable $atualizadoEm): void
   {
     CotacaoModel::updateOrCreate(
-      ['ticker' => $ticker, 'tipo' => $tipo],
+      ['asset_id' => $assetId],
       ['valor' => $valor, 'atualizado_em' => $atualizadoEm]
     );
   }
 
-  public function buscarPorTicker(string $ticker, string $tipo): ?Cotacao
+  public function buscarPorAssetId(int $assetId): ?Cotacao
   {
-    $model = CotacaoModel::where('ticker', $ticker)
-      ->where('tipo', $tipo)
-      ->first();
+    $model = CotacaoModel::where('asset_id', $assetId)->first();
 
     return $model ? $this->toEntity($model) : null;
   }
 
-  public function buscarPorTipo(string $tipo): array
+  public function buscarPorTicker(string $ticker): ?Cotacao
   {
-    return CotacaoModel::where('tipo', $tipo)
+    $model = CotacaoModel::whereHas('asset', fn($q) => $q->where('ticker', strtoupper($ticker)))->first();
+
+    return $model ? $this->toEntity($model) : null;
+  }
+
+  public function buscarPorAssetTypeId(int $assetTypeId): array
+  {
+    return CotacaoModel::whereHas('asset', fn($q) => $q->where('asset_type_id', $assetTypeId))
       ->get()
       ->map(fn($model) => $this->toEntity($model))
       ->all();
   }
 
-  public function buscarPorTickers(array $tickers, string $tipo): array
+  public function buscarPorAssetIds(array $assetIds): array
   {
-    return CotacaoModel::whereIn('ticker', $tickers)
-      ->where('tipo', $tipo)
+    return CotacaoModel::whereIn('asset_id', $assetIds)
       ->get()
       ->map(fn($model) => $this->toEntity($model))
       ->all();
@@ -47,8 +51,7 @@ class CotacaoRepository implements CotacaoRepositoryInterface
   private function toEntity(CotacaoModel $model): Cotacao
   {
     return new Cotacao(
-      ticker: $model->ticker,
-      tipo: $model->tipo,
+      assetId: $model->asset_id,
       valor: $model->valor,
       atualizadoEm: DateTimeImmutable::createFromMutable($model->atualizado_em),
       id: $model->id,

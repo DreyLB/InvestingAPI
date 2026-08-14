@@ -6,18 +6,20 @@ use App\Domain\Entities\Cotacao;
 
 interface CotacaoRepositoryInterface
 {
-  public function salvar(string $ticker, string $tipo, float $valor, \DateTimeImmutable $atualizadoEm): void;
+  public function salvar(int $assetId, float $valor, \DateTimeImmutable $atualizadoEm): void;
 
-  public function buscarPorTicker(string $ticker, string $tipo): ?Cotacao;
+  public function buscarPorAssetId(int $assetId): ?Cotacao;
+
+  public function buscarPorTicker(string $ticker): ?Cotacao;
 
   /**
    * @return Cotacao[]
    */
-  public function buscarPorTipo(string $tipo): array;
+  public function buscarPorAssetTypeId(int $assetTypeId): array;
 
   /**
-   * @param string[] $tickers
+   * @param int[] $assetIds
    * @return Cotacao[]
    */
-  public function buscarPorTickers(array $tickers, string $tipo): array;
+  public function buscarPorAssetIds(array $assetIds): array;
 }

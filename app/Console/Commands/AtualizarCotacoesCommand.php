@@ -1,24 +1,42 @@
 <?php
-// app/Console/Commands/AtualizarCotacoesCommand.php
 
 namespace App\Console\Commands;
 
 use App\Application\Services\CotacaoService;
+use App\Domain\Repositories\CarteiraRepositoryInterface;
+use App\Domain\Repositories\PositionRepositoryInterface;
 use App\Infrastructure\Providers\BrapiProvider;
-use App\Infrastructure\Providers\CoinGeckoProvider;
 use Illuminate\Console\Command;
 
 class AtualizarCotacoesCommand extends Command
 {
   protected $signature = 'cotacoes:atualizar';
 
-  public function handle(CotacaoService $service, BrapiProvider $brapi, CoinGeckoProvider $coinGecko): void
-  {
-    $tickers = ['PETR4', 'VALE3', 'ITUB4'];
-    $service->atualizarCotacoesAcoes($brapi, $tickers);
+  public function handle(
+    CotacaoService $service,
+    BrapiProvider $brapi,
+    CarteiraRepositoryInterface $carteiraRepository,
+    PositionRepositoryInterface $positionRepository,
+  ): void {
+    $userId = 1;
 
-    $cryptos = ['bitcoin', 'ethereum'];
-    $service->atualizarCotacoesCripto($coinGecko, $cryptos);
+    $tickers = [];
+    foreach ($carteiraRepository->findByUserId($userId) as $carteira) {
+      foreach ($positionRepository->listarPorCarteira($carteira->getId()) as $posicao) {
+        if ($posicao['ticker']) {
+          $tickers[] = $posicao['ticker'];
+        }
+      }
+    }
+
+    $tickers = array_values(array_unique($tickers));
+
+    if (empty($tickers)) {
+      $this->info('Nenhum ativo encontrado na carteira do usuário.');
+      return;
+    }
+
+    $service->atualizarCotacoes($brapi, $tickers);
 
     $this->info('Cotações atualizadas com sucesso.');
   }

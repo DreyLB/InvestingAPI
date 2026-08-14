@@ -8,18 +8,13 @@ use InvalidArgumentException;
 class Cotacao
 {
   public function __construct(
-    private readonly string $ticker,
-    private readonly string $tipo,       // 'acao' | 'cripto' | 'indice'
+    private readonly int $assetId,
     private readonly float $valor,
     private readonly DateTimeImmutable $atualizadoEm,
     private readonly ?int $id = null,
   ) {
     if ($valor < 0) {
       throw new InvalidArgumentException("Valor da cotação não pode ser negativo.");
-    }
-
-    if (!in_array($tipo, ['acao', 'cripto', 'indice'], true)) {
-      throw new InvalidArgumentException("Tipo de cotação inválido: {$tipo}");
     }
   }
 
@@ -28,14 +23,9 @@ class Cotacao
     return $this->id;
   }
 
-  public function getTicker(): string
+  public function getAssetId(): int
   {
-    return $this->ticker;
-  }
-
-  public function getTipo(): string
-  {
-    return $this->tipo;
+    return $this->assetId;
   }
 
   public function getValor(): float

@@ -19,6 +19,12 @@ use App\Domain\Repositories\AtivoRepositoryInterface;
 use App\Infrastructure\Persistence\AtivoRepository;
 use App\Domain\Repositories\PositionRepositoryInterface;
 use App\Infrastructure\Persistence\PositionRepository;
+use App\Domain\Repositories\CotacaoRepositoryInterface;
+use App\Infrastructure\Persistence\CotacaoRepository;
+use App\Infrastructure\Providers\HgBrasilProvider;
+use App\Infrastructure\Providers\BrapiProvider;
+use App\Domain\Repositories\IndicadorMercadoRepositoryInterface;
+use App\Infrastructure\Persistence\IndicadorMercadoRepository;
 
 
 
@@ -74,5 +80,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AtivoRepositoryInterface::class, AtivoRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
         $this->app->bind(TransacaoRepositoryInterface::class, TransacaoRepository::class);
+
+        $this->app->bind(CotacaoRepositoryInterface::class, CotacaoRepository::class);
+
+        $this->app->bind(HgBrasilProvider::class, fn() => new HgBrasilProvider(config('services.hgbrasil.key')));
+
+        $this->app->bind(BrapiProvider::class, fn() => new BrapiProvider(config('services.brapi.key')));
+
+        $this->app->bind(IndicadorMercadoRepositoryInterface::class, IndicadorMercadoRepository::class);
     }
 }

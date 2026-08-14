@@ -2,6 +2,7 @@
 
 namespace App\Application\Services;
 
+use App\Domain\Repositories\AtivoRepositoryInterface;
 use App\Domain\Repositories\CotacaoRepositoryInterface;
 use App\Infrastructure\Providers\MarketDataProviderInterface;
 use DateTimeImmutable;
@@ -10,23 +11,21 @@ class CotacaoService
 {
   public function __construct(
     private CotacaoRepositoryInterface $cotacaoRepository,
+    private AtivoRepositoryInterface $ativoRepository,
   ) {}
 
-  public function atualizarCotacoesAcoes(MarketDataProviderInterface $provider, array $tickers): void
+  public function atualizarCotacoes(MarketDataProviderInterface $provider, array $tickers): void
   {
     $cotacoes = $provider->buscarCotacoes($tickers);
 
     foreach ($cotacoes as $ticker => $valor) {
-      $this->cotacaoRepository->salvar($ticker, 'acao', $valor, new DateTimeImmutable());
-    }
-  }
+      $ativo = $this->ativoRepository->findByTickerExato($ticker);
 
-  public function atualizarCotacoesCripto(MarketDataProviderInterface $provider, array $ids): void
-  {
-    $cotacoes = $provider->buscarCotacoes($ids);
+      if (!$ativo) {
+        continue;
+      }
 
-    foreach ($cotacoes as $id => $valor) {
-      $this->cotacaoRepository->salvar($id, 'cripto', $valor, new DateTimeImmutable());
+      $this->cotacaoRepository->salvar($ativo->getId(), $valor, new DateTimeImmutable());
     }
   }
 }
