@@ -42,6 +42,9 @@ Route::middleware('auth:api')->group(function () {
   Route::get('/carteiras/{carteiraId}/valorTotal', [PosicaoController::class, 'allValue']);
   Route::get('/carteiras/{carteiraId}/acoes', [PosicaoController::class, 'acoes']);
   Route::get('/carteiras/{carteiraId}/fiis', [PosicaoController::class, 'fiis']);
+  Route::get('/carteiras/{carteiraId}/composicao', [PosicaoController::class, 'composicao']);
+  Route::get('/carteiras/{carteiraId}/composicao/acoes', [PosicaoController::class, 'composicaoAcoes']);
+  Route::get('/carteiras/{carteiraId}/composicao/fiis', [PosicaoController::class, 'composicaoFiis']);
 
   // TRANSAÇÕES
   Route::get('/carteiras/{carteiraId}/transacoes',        [TransacaoController::class, 'index']);

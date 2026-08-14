@@ -51,4 +51,58 @@ class PosicaoController extends Controller
       return response()->json(['message' => $e->getMessage()], 404);
     }
   }
+
+  // GET /carteiras/{carteiraId}/composicao
+  public function composicao(int $carteiraId): JsonResponse
+  {
+    try {
+      $userId = (int) Auth::id();
+
+      if (!$this->carteiraRepository->findByIdAndUserId($carteiraId, $userId)) {
+        return response()->json(['message' => 'Carteira não encontrada.'], 404);
+      }
+
+      return response()->json(
+        $this->positionService->composicaoPorCategoria($carteiraId)
+      );
+    } catch (ModelNotFoundException $e) {
+      return response()->json(['message' => $e->getMessage()], 404);
+    }
+  }
+
+  // GET /carteiras/{carteiraId}/composicao/acoes
+  public function composicaoAcoes(int $carteiraId): JsonResponse
+  {
+    try {
+      $userId = (int) Auth::id();
+
+      if (!$this->carteiraRepository->findByIdAndUserId($carteiraId, $userId)) {
+        return response()->json(['message' => 'Carteira não encontrada.'], 404);
+      }
+
+      return response()->json(
+        $this->positionService->composicaoPorTipo($carteiraId, 'Ações')
+      );
+    } catch (ModelNotFoundException $e) {
+      return response()->json(['message' => $e->getMessage()], 404);
+    }
+  }
+
+  // GET /carteiras/{carteiraId}/composicao/fiis
+  public function composicaoFiis(int $carteiraId): JsonResponse
+  {
+    try {
+      $userId = (int) Auth::id();
+
+      if (!$this->carteiraRepository->findByIdAndUserId($carteiraId, $userId)) {
+        return response()->json(['message' => 'Carteira não encontrada.'], 404);
+      }
+
+      return response()->json(
+        $this->positionService->composicaoPorTipo($carteiraId, 'FIIs')
+      );
+    } catch (ModelNotFoundException $e) {
+      return response()->json(['message' => $e->getMessage()], 404);
+    }
+  }
 }

@@ -51,6 +51,41 @@ class PositionService
     );
   }
 
+  public function composicaoPorCategoria(int $walletId): array
+  {
+    $positions = $this->listarPorCarteira($walletId);
+
+    $valorPorCategoria = [];
+    foreach ($positions as $position) {
+      $categoria = $position['tipo_nome'] ?? 'Outros';
+      $valorPorCategoria[$categoria] = ($valorPorCategoria[$categoria] ?? 0.0) + (float) $position['valor_atual'];
+    }
+
+    return array_map(
+      fn(string $categoria, float $valor) => ['categoria' => $categoria, 'valor' => $valor],
+      array_keys($valorPorCategoria),
+      array_values($valorPorCategoria)
+    );
+  }
+
+  public function composicaoPorTipo(int $walletId, string $tipoNome): array
+  {
+    $positions = $this->listarPorCarteira($walletId);
+
+    $filtradas = array_filter(
+      $positions,
+      fn(array $position) => $position['tipo_nome'] === $tipoNome
+    );
+
+    return array_values(array_map(
+      fn(array $position) => [
+        'ticker' => $position['ticker'],
+        'valor'  => (float) $position['valor_atual'],
+      ],
+      $filtradas
+    ));
+  }
+
   // Chamado sempre que uma transação é registrada
   public function processar(Transacao $transacao): void
   {
