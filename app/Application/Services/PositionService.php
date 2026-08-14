@@ -5,17 +5,39 @@ namespace App\Application\Services;
 
 use App\Domain\Entities\Position;
 use App\Domain\Entities\Transacao;
+use App\Domain\Repositories\CotacaoRepositoryInterface;
 use App\Domain\Repositories\PositionRepositoryInterface;
 
 class PositionService
 {
   public function __construct(
-    private PositionRepositoryInterface $positionRepository
+    private PositionRepositoryInterface $positionRepository,
+    private CotacaoRepositoryInterface $cotacaoRepository
   ) {}
 
   public function listarPorCarteira(int $walletId): array
   {
-    return $this->positionRepository->listarPorCarteira($walletId);
+    $positions = $this->positionRepository->listarPorCarteira($walletId);
+
+    $cotacoes = $this->cotacaoRepository->buscarPorAssetIds(
+      array_column($positions, 'asset_id')
+    );
+
+    $cotacaoPorAsset = [];
+    foreach ($cotacoes as $cotacao) {
+      $cotacaoPorAsset[$cotacao->getAssetId()] = $cotacao->getValor();
+    }
+
+    return array_map(function (array $position) use ($cotacaoPorAsset) {
+      $cotacaoAtual = $cotacaoPorAsset[$position['asset_id']] ?? null;
+
+      $position['cotacao_atual'] = $cotacaoAtual;
+      $position['valor_atual'] = $cotacaoAtual !== null
+        ? $cotacaoAtual * (float) $position['quantidade']
+        : (float) $position['valor_total'];
+
+      return $position;
+    }, $positions);
   }
 
   public function calcularValorTotal(int $walletId): float
