@@ -86,21 +86,22 @@ class CarteiraRepository implements CarteiraRepositoryInterface
 
   public function calcularEvolucaoCarteira(int $carteiraId): array
   {
-    $resultados = TransacaoModel::query()
-      ->selectRaw("DATE_FORMAT(`data`, '%Y-%m') as mes_ano")
-      ->selectRaw('SUM(quantidade * preco_unitario) as valor_total')
+    $transacoes = TransacaoModel::query()
+      ->select(['data', 'quantidade', 'preco_unitario'])
       ->where('wallet_id', $carteiraId)
       ->whereNull('deleted_at')
-      ->groupBy('mes_ano')
-      ->orderByRaw('MIN(`data`) ASC')
-      ->get()
-      ->keyBy('mes_ano');
+      ->orderBy('data')
+      ->get();
 
-    if ($resultados->isEmpty()) {
+    if ($transacoes->isEmpty()) {
       return [];
     }
 
-    $primeiroMes = \Carbon\Carbon::createFromFormat('Y-m', $resultados->keys()->first())->startOfMonth();
+    $resultados = $transacoes
+      ->groupBy(fn($transacao) => \Carbon\Carbon::parse($transacao->data)->format('Y-m'))
+      ->map(fn($grupo) => $grupo->sum(fn($t) => $t->quantidade * $t->preco_unitario));
+
+    $primeiroMes = \Carbon\Carbon::parse($transacoes->first()->data)->startOfMonth();
     $ultimoMes = \Carbon\Carbon::now()->startOfMonth(); // ou ->keys()->last() se não quiser ir até o mês atual
 
     $evolucao = [];
@@ -111,7 +112,7 @@ class CarteiraRepository implements CarteiraRepositoryInterface
       $chave = $cursor->format('Y-m');
 
       if (isset($resultados[$chave])) {
-        $acumulado += (float) $resultados[$chave]->valor_total;
+        $acumulado += (float) $resultados[$chave];
       }
 
       $evolucao[] = [

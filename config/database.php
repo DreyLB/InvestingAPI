@@ -94,7 +94,13 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // Emula prepared statements no cliente em vez de no servidor. Necessário
+            // ao conectar via pooler em modo transaction (ex.: Supabase pgbouncer),
+            // que não garante a mesma conexão física entre statements.
+            'options' => extension_loaded('pdo_pgsql') ? [
+                PDO::ATTR_EMULATE_PREPARES => (bool) env('DB_PGSQL_EMULATE_PREPARES', true),
+            ] : [],
         ],
 
         'sqlsrv' => [

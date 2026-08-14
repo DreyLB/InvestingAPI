@@ -43,4 +43,6 @@ return [
         'key' => env('BRAPI_API_KEY'),
     ],
 
+    'cron_secret' => env('CRON_SECRET'),
+
 ];

@@ -13,6 +13,7 @@ use App\Http\Controllers\API\AlertaController;
 use App\Http\Controllers\API\MetaController;
 use App\Http\Controllers\API\RendimentoController;
 use App\Http\Controllers\API\IndicadorMercadoController;
+use App\Http\Controllers\API\CronController;
 
 // ROTAS PÚBLICAS
 Route::post('/register', [UserController::class, 'register']);
@@ -25,6 +26,9 @@ Route::get('/asset-types', [AssetTypeController::class, 'index']);
 
 // Indicadores de mercado (IBOVESPA, Bitcoin) — público para o topo do painel
 Route::get('/indicadores-mercado', [IndicadorMercadoController::class, 'index']);
+
+// Disparado pelo Vercel Cron — protegido por CRON_SECRET (ver CronController)
+Route::get('/cron/atualizar-cotacoes', [CronController::class, 'atualizarCotacoes']);
 
 // ROTAS AUTENTICADAS
 Route::middleware('auth:api')->group(function () {

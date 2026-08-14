@@ -247,6 +247,57 @@ No arquivo config/auth.php, ajuste o guard api para usar o driver jwt:
 
 ---
 
+## ▲ Deploy na Vercel
+
+A Vercel não roda containers Docker nem processos PHP-FPM persistentes — o app é
+servido como função serverless via runtime de comunidade [`vercel-php`](https://github.com/vercel-community/php)
+(arquivos [vercel.json](vercel.json) e [api/index.php](api/index.php)). Isso implica
+algumas diferenças em relação ao ambiente Docker local:
+
+-   **Sem worker de fila / scheduler em background.** O `routes/console.php` agenda
+    `cotacoes:atualizar` a cada 10 minutos, mas isso depende de um processo `php artisan schedule:work`
+    contínuo, que não existe em serverless. Em vez disso, o endpoint
+    `GET /api/cron/atualizar-cotacoes` (ver [CronController](app/Http/Controllers/API/CronController.php))
+    executa o mesmo comando sob demanda, protegido pela env `CRON_SECRET`. Configure um
+    [Vercel Cron Job](https://vercel.com/docs/cron-jobs) apontando pra essa rota — no plano
+    Hobby, crons rodam no máximo 1x/dia; frequência maior exige plano Pro ou superior.
+-   **Filesystem somente leitura** (exceto `/tmp`). Por isso `LOG_CHANNEL=stderr` e os
+    caches de config/rotas/eventos/serviços/views são redirecionados para `/tmp` via
+    `vercel.json`. `SESSION_DRIVER`, `CACHE_STORE` e `QUEUE_CONNECTION` já usam o driver
+    `database`, então nada disso depende de disco.
+-   **Banco de dados** precisa ser externo — a Vercel não hospeda banco. O projeto usa
+    MySQL localmente (Docker), mas em produção recomenda-se Postgres via
+    [Supabase](https://supabase.com), já suportado em `config/database.php`. Ao usar o
+    connection pooler do Supabase (`transaction mode`, porta 6543 — recomendado para
+    serverless), mantenha `DB_PGSQL_EMULATE_PREPARES=true` (padrão) para evitar erros de
+    *prepared statement* entre conexões pooladas.
+
+### Variáveis de ambiente a configurar no dashboard da Vercel
+
+| Variável | Observação |
+| --- | --- |
+| `APP_KEY` | gerar localmente com `php artisan key:generate --show` |
+| `APP_ENV` | `production` |
+| `APP_DEBUG` | `false` |
+| `APP_URL` | domínio da Vercel (ex.: `https://seu-projeto.vercel.app`) |
+| `DB_CONNECTION` | `pgsql` |
+| `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | dados de conexão do Supabase |
+| `DB_SSLMODE` | `require` |
+| `JWT_SECRET`, `JWT_TTL`, `JWT_REFRESH_TTL` | mesmos valores usados localmente ou gerados via `php artisan jwt:secret` |
+| `AUTH_MODEL` | `App\Infrastructure\Persistence\Models\UserModel` |
+| `CORS_ALLOWED_ORIGINS` | domínio(s) do frontend em produção, separados por vírgula |
+| `CRON_SECRET` | segredo aleatório; a Vercel injeta esse valor como `Authorization: Bearer` nas chamadas de cron |
+| `HGBRASIL_API_KEY`, `BRAPI_API_KEY` | chaves das APIs externas |
+
+### Passos
+
+1. Criar o projeto no Supabase (ou outro Postgres gerenciado) e copiar a connection string.
+2. Rodar as migrations contra o banco de produção: `php artisan migrate --force` (com as env vars de produção carregadas localmente, ou via `vercel env pull`).
+3. Na Vercel, importar o repositório apontando para a branch `feat/vercel_version` e cadastrar as variáveis acima (Production e Preview).
+4. Deploy. O build roda `composer install` automaticamente (runtime `vercel-php`); não é necessário build command customizado.
+
+---
+
 ## 🧪 Testes
 
 -   [ ] Testes unitários com PHPUnit
