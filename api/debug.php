@@ -66,6 +66,16 @@ try {
 echo "\n";
 
 try {
+    \Illuminate\Support\Facades\Log::error('debug direct test', ['exception' => new \Exception('inner test')]);
+    echo "Log::error() via real LogManager: ok\n";
+} catch (\Throwable $e) {
+    echo "Log::error() via real LogManager FAILED: " . get_class($e) . ": " . $e->getMessage() . "\n";
+    echo "at " . $e->getFile() . ":" . $e->getLine() . "\n\n";
+    echo $e->getTraceAsString() . "\n";
+}
+echo "\n";
+
+try {
     $httpKernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
     $request = \Illuminate\Http\Request::create('/up', 'GET');
     $response = $httpKernel->handle($request);
