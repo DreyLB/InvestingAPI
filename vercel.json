@@ -1,8 +1,8 @@
 {
   "version": 2,
   "framework": null,
-  "buildCommand": null,
-  "installCommand": null,
+  "buildCommand": "echo 'sem build de front-end nesta API'",
+  "installCommand": "echo 'sem install de deps Node nesta API'",
   "functions": {
     "api/index.php": {
       "runtime": "vercel-php@0.9.0",
