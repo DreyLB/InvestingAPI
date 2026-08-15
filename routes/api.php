@@ -29,6 +29,7 @@ Route::get('/indicadores-mercado', [IndicadorMercadoController::class, 'index'])
 
 // Disparado pelo Vercel Cron — protegido por CRON_SECRET (ver CronController)
 Route::get('/cron/atualizar-cotacoes', [CronController::class, 'atualizarCotacoes']);
+Route::get('/cron/atualizar-indicadores', [CronController::class, 'atualizarIndicadores']);
 
 // ROTAS AUTENTICADAS
 Route::middleware('auth:api')->group(function () {

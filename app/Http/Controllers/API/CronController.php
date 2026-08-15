@@ -15,13 +15,25 @@ class CronController extends Controller
   // o scheduler do Laravel não roda em ambiente serverless.
   public function atualizarCotacoes(Request $request): JsonResponse
   {
+    return $this->executarComando($request, 'cotacoes:atualizar');
+  }
+
+  // GET /cron/atualizar-indicadores
+  // Atualiza IBOVESPA/Bitcoin (tabela indicadores_mercado).
+  public function atualizarIndicadores(Request $request): JsonResponse
+  {
+    return $this->executarComando($request, 'indicadores:atualizar');
+  }
+
+  private function executarComando(Request $request, string $comando): JsonResponse
+  {
     $secret = config('services.cron_secret');
 
     if ($secret && $request->bearerToken() !== $secret) {
       return response()->json(['message' => 'Unauthorized'], 401);
     }
 
-    Artisan::call('cotacoes:atualizar');
+    Artisan::call($comando);
 
     return response()->json(['output' => Artisan::output()]);
   }
