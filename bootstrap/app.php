@@ -15,5 +15,20 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Em serverless (Vercel), o pipeline padrão de log do Laravel pode
+        // cair no logger de emergência hardcoded do framework, que escreve
+        // em storage/logs — inexistente/read-only nesse ambiente. Reportamos
+        // via error_log() nativo do PHP (aparece nos Runtime Logs da Vercel)
+        // e pulamos o pipeline padrão retornando false.
+        $exceptions->reportable(function (\Throwable $e) {
+            error_log(sprintf(
+                '%s: %s in %s:%d',
+                $e::class,
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine()
+            ));
+
+            return false;
+        });
     })->create();
