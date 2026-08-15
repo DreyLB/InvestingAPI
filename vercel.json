@@ -8,17 +8,9 @@
     "api/index.php": {
       "runtime": "vercel-php@0.7.4",
       "maxDuration": 30
-    },
-    "api/debug.php": {
-      "runtime": "vercel-php@0.7.4",
-      "maxDuration": 30
     }
   },
   "routes": [
-    {
-      "src": "/api/debug.php",
-      "dest": "/api/debug.php"
-    },
     {
       "src": "/(.*)",
       "dest": "/api/index.php"

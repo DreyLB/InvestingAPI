@@ -21,17 +21,13 @@ return Application::configure(basePath: dirname(__DIR__))
         // via error_log() nativo do PHP (aparece nos Runtime Logs da Vercel)
         // e pulamos o pipeline padrão retornando false.
         $exceptions->reportable(function (\Throwable $e) {
-            $text = sprintf(
-                "%s: %s in %s:%d\n\n%s\n",
+            error_log(sprintf(
+                '%s: %s in %s:%d',
                 $e::class,
                 $e->getMessage(),
                 $e->getFile(),
-                $e->getLine(),
-                $e->getTraceAsString()
-            );
-
-            error_log($text);
-            @file_put_contents('/tmp/last_error.txt', $text);
+                $e->getLine()
+            ));
 
             return false;
         });
