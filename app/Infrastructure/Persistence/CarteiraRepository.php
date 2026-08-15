@@ -28,7 +28,7 @@ class CarteiraRepository implements CarteiraRepositoryInterface
   {
     $model = $carteira->getId() ? CarteiraModel::find($carteira->getId()) : new CarteiraModel();
     if (!$carteira->getId()) {
-      $model->user_id = Auth::id();
+      $model->user_id = $carteira->getUserId() ?? Auth::id();
     }
     $model->nome = $carteira->getNome();
     $model->descricao = $carteira->getDescricao();

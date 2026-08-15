@@ -31,7 +31,7 @@ class UserRepository implements UserRepositoryInterface
     return UserModel::all()->map(fn($model) => $this->toEntity($model))->toArray();
   }
 
-  public function save(User $user): void
+  public function save(User $user): int
   {
     $model = $user->getId() ? UserModel::find($user->getId()) : new UserModel();
     $model->name = $user->getName();
@@ -41,6 +41,8 @@ class UserRepository implements UserRepositoryInterface
     $model->age = $user->getAge();
     $model->investorProfile = $user->getInvestorProfile();
     $model->save();
+
+    return $model->id;
   }
 
   public function delete(int $id): void

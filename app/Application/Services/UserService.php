@@ -4,16 +4,22 @@ namespace App\Application\Services;
 
 use Illuminate\Support\Facades\Hash;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Domain\Repositories\CarteiraRepositoryInterface;
 use App\Domain\Entities\User;
+use App\Domain\Entities\Carteira;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserService
 {
   private UserRepositoryInterface $userRepository;
+  private CarteiraRepositoryInterface $carteiraRepository;
 
-  public function __construct(UserRepositoryInterface $userRepository)
-  {
+  public function __construct(
+    UserRepositoryInterface $userRepository,
+    CarteiraRepositoryInterface $carteiraRepository
+  ) {
     $this->userRepository = $userRepository;
+    $this->carteiraRepository = $carteiraRepository;
   }
 
   public function getAllUsers(): array
@@ -31,7 +37,10 @@ class UserService
     $hashedPassword = Hash::make($password);
 
     $user = new User($name, $email, $hashedPassword);
-    $this->userRepository->save($user);
+    $userId = $this->userRepository->save($user);
+
+    $carteira = new Carteira(null, $userId, 'Investimento', '');
+    $this->carteiraRepository->save($carteira);
   }
 
   public function loginUser(string $email, string $password): array
