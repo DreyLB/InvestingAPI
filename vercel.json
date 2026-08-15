@@ -16,6 +16,16 @@
       "dest": "/api/index.php"
     }
   ],
+  "crons": [
+    {
+      "path": "/api/cron/atualizar-cotacoes",
+      "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/cron/atualizar-indicadores",
+      "schedule": "5 20 * * *"
+    }
+  ],
   "env": {
     "LOG_CHANNEL": "stderr",
     "API_PREFIX": "",
