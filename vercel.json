@@ -29,6 +29,8 @@
   "env": {
     "LOG_CHANNEL": "stderr",
     "API_PREFIX": "",
+    "REFRESH_COOKIE_SECURE": "true",
+    "REFRESH_COOKIE_SAMESITE": "none",
     "VIEW_COMPILED_PATH": "/tmp",
     "APP_CONFIG_CACHE": "/tmp/config.php",
     "APP_EVENTS_CACHE": "/tmp/events.php",

@@ -111,15 +111,20 @@ class UserController extends Controller
 
   private function makeRefreshCookie(string $token)
   {
+    // Frontend e API rodam em subdomínios diferentes de vercel.app (sites
+    // distintos pra fins de cookie), então em produção o cookie precisa de
+    // SameSite=None + Secure — senão o navegador nunca manda ele de volta em
+    // chamadas fetch/XHR cross-site. Local (http://localhost) continua com
+    // os defaults Lax/não-secure.
     return cookie(
       name: 'refresh_token',
       value: $token,
       minutes: (int) config('jwt.refresh_ttl'), // <-- cast aqui
       path: '/',
       domain: null,
-      secure: false,
+      secure: filter_var(env('REFRESH_COOKIE_SECURE', false), FILTER_VALIDATE_BOOLEAN),
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: env('REFRESH_COOKIE_SAMESITE', 'lax'),
     );
   }
 }
