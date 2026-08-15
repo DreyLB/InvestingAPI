@@ -77,14 +77,17 @@ try {
 }
 echo "\n";
 
+@unlink('/tmp/last_error.txt');
+
 try {
     $httpKernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
-    $request = \Illuminate\Http\Request::create('/up', 'GET');
+    $request = \Illuminate\Http\Request::create('/api/indicadores-mercado', 'GET');
     $response = $httpKernel->handle($request);
     echo "HTTP kernel handle: ok, status=" . $response->getStatusCode() . "\n";
-    echo "Body preview: " . substr($response->getContent(), 0, 1000) . "\n";
 } catch (\Throwable $e) {
     echo "HTTP kernel handle FAILED: " . get_class($e) . ": " . $e->getMessage() . "\n";
     echo "at " . $e->getFile() . ":" . $e->getLine() . "\n\n";
     echo $e->getTraceAsString() . "\n";
 }
+echo "\n=== /tmp/last_error.txt ===\n";
+echo file_exists('/tmp/last_error.txt') ? file_get_contents('/tmp/last_error.txt') : "(vazio, nenhum erro reportado)\n";
