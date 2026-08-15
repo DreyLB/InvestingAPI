@@ -46,3 +46,16 @@ try {
     echo "at " . $e->getFile() . ":" . $e->getLine() . "\n\n";
     echo $e->getTraceAsString() . "\n";
 }
+echo "\n";
+
+try {
+    $httpKernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
+    $request = \Illuminate\Http\Request::create('/up', 'GET');
+    $response = $httpKernel->handle($request);
+    echo "HTTP kernel handle: ok, status=" . $response->getStatusCode() . "\n";
+    echo "Body preview: " . substr($response->getContent(), 0, 1000) . "\n";
+} catch (\Throwable $e) {
+    echo "HTTP kernel handle FAILED: " . get_class($e) . ": " . $e->getMessage() . "\n";
+    echo "at " . $e->getFile() . ":" . $e->getLine() . "\n\n";
+    echo $e->getTraceAsString() . "\n";
+}
