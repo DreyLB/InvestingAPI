@@ -15,7 +15,13 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    // Reflete o mesmo apiPrefix usado em bootstrap/app.php: na Vercel o
+    // prefixo "api" já é consumido pelo runtime antes de chegar no Laravel
+    // (ver API_PREFIX), então o path interno das rotas passa a ser "*".
+    'paths' => [
+        env('API_PREFIX', 'api') === '' ? '*' : env('API_PREFIX', 'api') . '/*',
+        'sanctum/csrf-cookie',
+    ],
 
     'allowed_methods' => ['*'],
 
