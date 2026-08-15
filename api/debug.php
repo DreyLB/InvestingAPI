@@ -66,8 +66,10 @@ try {
 echo "\n";
 
 try {
-    \Illuminate\Support\Facades\Log::error('debug direct test', ['exception' => new \Exception('inner test')]);
-    echo "Log::error() via real LogManager: ok\n";
+    $logger = $app->make(\Psr\Log\LoggerInterface::class);
+    echo "resolved LoggerInterface: " . get_class($logger) . "\n";
+    $logger->error('debug direct test', ['exception' => new \Exception('inner test')]);
+    echo "logger->error() via real LogManager: ok\n";
 } catch (\Throwable $e) {
     echo "Log::error() via real LogManager FAILED: " . get_class($e) . ": " . $e->getMessage() . "\n";
     echo "at " . $e->getFile() . ":" . $e->getLine() . "\n\n";
