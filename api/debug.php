@@ -49,6 +49,23 @@ try {
 echo "\n";
 
 try {
+    $handler = $app->make(\Monolog\Handler\StreamHandler::class, ['stream' => 'php://stderr']);
+    echo "StreamHandler construct (like Laravel's createMonologDriver): ok\n";
+    $handler->handle(new \Monolog\LogRecord(
+        new \DateTimeImmutable(),
+        'test',
+        \Monolog\Level::Debug,
+        'debug test record'
+    ));
+    echo "StreamHandler->handle(): ok\n";
+} catch (\Throwable $e) {
+    echo "StreamHandler construct/handle FAILED: " . get_class($e) . ": " . $e->getMessage() . "\n";
+    echo "at " . $e->getFile() . ":" . $e->getLine() . "\n\n";
+    echo $e->getTraceAsString() . "\n";
+}
+echo "\n";
+
+try {
     $httpKernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
     $request = \Illuminate\Http\Request::create('/up', 'GET');
     $response = $httpKernel->handle($request);
