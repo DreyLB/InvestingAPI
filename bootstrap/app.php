@@ -8,6 +8,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__ . '/../routes/web.php',
         api: __DIR__ . '/../routes/api.php',
+        // Na Vercel, o entry-point roda em /api/index.php (exigência da
+        // plataforma), e o runtime vercel-php calcula o PATH_INFO removendo
+        // esse prefixo "/api" do path recebido — colidindo com o prefixo
+        // "api" que o Laravel adiciona por padrão às rotas de API. Sem essa
+        // env var (ambiente local via Docker/nginx), o prefixo padrão "api"
+        // é mantido normalmente.
+        apiPrefix: env('API_PREFIX', 'api'),
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
