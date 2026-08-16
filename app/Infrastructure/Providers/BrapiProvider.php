@@ -18,13 +18,19 @@ class BrapiProvider implements MarketDataProviderInterface
         ->withToken($this->apiKey)
         ->get('https://brapi.dev/api/v2/stocks/quote', [
           'symbols' => $ticker,
-        ])
-        ->throw()
-        ->json();
+        ]);
 
-      foreach ($response['results'] ?? [] as $item) {
+      // Em lotes grandes é esperado falhar em alguns tickers (delisted,
+      // rate limit etc.) — não aborta o restante do lote por causa disso.
+      if ($response->failed()) {
+        continue;
+      }
+
+      foreach ($response->json('results', []) as $item) {
         $resultado[$item['symbol']] = $item['data']['regularMarketPrice'];
       }
+
+      usleep(150_000);
     }
 
     return $resultado;
