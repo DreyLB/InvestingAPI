@@ -18,6 +18,17 @@ class PositionRepository implements PositionRepositoryInterface
       ->toArray();
   }
 
+  public function listarTickersEmUso(): array
+  {
+    return PositionModel::with('asset')
+      ->get()
+      ->map(fn($m) => $m->asset?->ticker)
+      ->filter()
+      ->unique()
+      ->values()
+      ->all();
+  }
+
   public function findByWalletAndAsset(int $walletId, int $assetId): ?Position
   {
     $model = PositionModel::where('wallet_id', $walletId)

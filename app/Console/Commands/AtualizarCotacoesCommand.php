@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Application\Services\CotacaoService;
 use App\Domain\Repositories\AtivoRepositoryInterface;
-use App\Domain\Repositories\CarteiraRepositoryInterface;
 use App\Domain\Repositories\PositionRepositoryInterface;
 use App\Infrastructure\Providers\BrapiProvider;
 use Illuminate\Console\Command;
@@ -16,13 +15,12 @@ class AtualizarCotacoesCommand extends Command
   public function handle(
     CotacaoService $service,
     BrapiProvider $brapi,
-    CarteiraRepositoryInterface $carteiraRepository,
     PositionRepositoryInterface $positionRepository,
     AtivoRepositoryInterface $ativoRepository,
   ): void {
     $tickers = $this->option('catalogo')
       ? $this->tickersDoCatalogo($ativoRepository)
-      : $this->tickersDaCarteira($carteiraRepository, $positionRepository);
+      : $positionRepository->listarTickersEmUso();
 
     if (empty($tickers)) {
       $this->info('Nenhum ativo encontrado.');
@@ -39,24 +37,6 @@ class AtualizarCotacoesCommand extends Command
     }
 
     $this->info('Cotações atualizadas com sucesso.');
-  }
-
-  private function tickersDaCarteira(
-    CarteiraRepositoryInterface $carteiraRepository,
-    PositionRepositoryInterface $positionRepository,
-  ): array {
-    $userId = 1;
-
-    $tickers = [];
-    foreach ($carteiraRepository->findByUserId($userId) as $carteira) {
-      foreach ($positionRepository->listarPorCarteira($carteira->getId()) as $posicao) {
-        if ($posicao['ticker']) {
-          $tickers[] = $posicao['ticker'];
-        }
-      }
-    }
-
-    return array_values(array_unique($tickers));
   }
 
   private function tickersDoCatalogo(AtivoRepositoryInterface $ativoRepository): array
